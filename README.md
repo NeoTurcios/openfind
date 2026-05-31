@@ -171,26 +171,21 @@ liberdom
 
 La mayoría de scripts de detección usan APIs de terceros limitadas o de pago. **LiberDom** utiliza un sistema autónomo de consulta en dos fases:
 
-```text
-                  [ Inicio: Dominio ]
-                           │
-                           ▼
-               [ Paso 1: Resolucion DNS ]
-               /                        \
-        (Tiene IP)                    (Sin IP)
-             /                            \
-            ▼                              ▼
-    [ Comprado por DNS ]          [ Paso 2: Consulta WHOIS ]
-                                           │
-                                           ▼
-                                    { ¿Registrado? }
-                                    /      │       \
-                                  (No)    (Si)   (Error)
-                                  /        │       \
-                                 ▼         ▼        ▼
-                           [ Disponible ]  │   [ Desconocido ]
-                                           ▼
-                                 [ Comprado por WHOIS ]
+```mermaid
+%%{init: {"flowchart": {"htmlLabels": true}} }%%
+flowchart LR
+    A["Inicio: Dominio"] --> B["Paso 1: Resolución DNS"]
+    B -->|Tiene IP| C["Comprado (DNS)"]
+    B -->|Sin IP| D["Paso 2: Consulta WHOIS"]
+    D --> E{"¿Registrado?"}
+    E -->|No| F["¡DISPONIBLE!"]
+    E -->|Sí| G["Comprado (WHOIS)"]
+    E -->|Error| H["Desconocido"]
+
+    style F fill:#00e676,stroke:#00e676,color:#070b13,font-weight:bold
+    style C fill:#ff1744,stroke:#ff1744,color:#ffffff,font-weight:bold
+    style G fill:#ff1744,stroke:#ff1744,color:#ffffff,font-weight:bold
+    style H fill:#ffea00,stroke:#ffea00,color:#070b13,font-weight:bold
 ```
 
 ---
