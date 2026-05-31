@@ -182,6 +182,7 @@ function inicializarBusquedaMasiva() {
     const resultsGrid = document.getElementById("bulk-results-grid");
     const progressPanel = document.getElementById("bulk-progress-panel");
     const downloadBtn = document.getElementById("download-results-btn");
+    const downloadPdfBtn = document.getElementById("download-pdf-btn");
 
     startBtn.addEventListener("click", async () => {
         const text = textarea.value.trim();
@@ -200,7 +201,7 @@ function inicializarBusquedaMasiva() {
 
             // Limpieza básica de protocolos y subdominios
             let dom = clean.toLowerCase();
-            dom = dom.replace(/^(https?:\/\/)?(www\.)?/, "");
+            dom = dom.replace(/^(https?://)?(www\.)?/, "");
             dom = dom.split("/")[0];
 
             if (dom.includes(".") && dom.length >= 4) {
@@ -222,6 +223,8 @@ function inicializarBusquedaMasiva() {
         progressPanel.style.display = "block";
         downloadBtn.classList.add("disabled");
         downloadBtn.disabled = true;
+        downloadPdfBtn.classList.add("disabled");
+        downloadPdfBtn.disabled = true;
         startBtn.disabled = true;
         startBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Escaneando...`;
 
@@ -306,15 +309,23 @@ function inicializarBusquedaMasiva() {
         startBtn.disabled = false;
         startBtn.innerHTML = `<i class="fa-solid fa-play"></i> Iniciar escaneo masivo`;
         
-        // Habilitar descarga
+        // Habilitar descargas
         downloadBtn.classList.remove("disabled");
         downloadBtn.disabled = false;
+        downloadPdfBtn.classList.remove("disabled");
+        downloadPdfBtn.disabled = false;
     });
 
-    // Evento de Descargar Reporte
+    // Evento de Descargar Reporte TXT
     downloadBtn.addEventListener("click", () => {
         if (bulkResultsData.length === 0) return;
         descargarReporteTxt();
+    });
+
+    // Evento de Descargar Reporte PDF
+    downloadPdfBtn.addEventListener("click", () => {
+        if (bulkResultsData.length === 0) return;
+        descargarReportePdf();
     });
 }
 
@@ -407,3 +418,204 @@ function descargarReporteTxt() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
+
+function descargarReportePdf() {
+    if (bulkResultsData.length === 0) return;
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'pt', 'a4'); // vertical, puntos, tamaño a4
+    
+    const margin = 40;
+    let y = 50;
+    const width = 595;
+    
+    // Paleta de Colores Corporativos
+    const darkSlate = [15, 23, 42];      // #0f172a
+    const neonGreen = [16, 185, 129];     // #10b981
+    const neonRed = [239, 68, 68];        // #ef4444
+    const neutralGray = [148, 163, 184];   // #94a3b8
+    const lightGray = [248, 250, 252];     // #f8fafc
+    const tableBorder = [241, 245, 249];   // #f1f5f9
+    
+    // --- CABECERA DE HOJA (Header Bar) ---
+    doc.setFillColor(...darkSlate);
+    doc.rect(margin, y, width - (margin * 2), 55, 'F');
+    
+    // Texto de Cabecera
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("LIBERDOM", margin + 20, y + 34);
+    
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.text("DETECTOR DE DISPONIBILIDAD DE DOMINIOS", width - margin - 240, y + 33);
+    
+    // Línea verde neón de acento
+    y += 55;
+    doc.setFillColor(...neonGreen);
+    doc.rect(margin, y, width - (margin * 2), 3, 'F');
+    
+    y += 35;
+    
+    // --- TÍTULO DEL DOCUMENTO ---
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(15);
+    doc.text("Reporte Masivo de Disponibilidad", margin, y);
+    
+    y += 18;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Fecha del análisis: ${new Date().toLocaleString()}`, margin, y);
+    
+    y += 25;
+    
+    // --- TARJETAS RESUMEN DE MÉTRICAS (Módulos de Conteo) ---
+    const disponibles = bulkResultsData.filter(d => d.estado === 'DISPONIBLE').length;
+    const ocupados = bulkResultsData.filter(d => d.estado === 'COMPRADO').length;
+    const dudosos = bulkResultsData.filter(d => d.estado === 'DESCONOCIDO' || d.estado === 'ERROR').length;
+    
+    // Tarjeta 1: Disponibles (Verde Pastel)
+    doc.setFillColor(240, 253, 244); 
+    doc.setDrawColor(...neonGreen);
+    doc.roundedRect(margin, y, 155, 42, 4, 4, 'FD');
+    doc.setTextColor(...neonGreen);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(`${disponibles}`, margin + 15, y + 20);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(22, 101, 52);
+    doc.text("Dominios Libres", margin + 15, y + 32);
+    
+    // Tarjeta 2: Ocupados (Rojo Pastel)
+    doc.setFillColor(254, 242, 242); 
+    doc.setDrawColor(...neonRed);
+    doc.roundedRect(margin + 170, y, 155, 42, 4, 4, 'FD');
+    doc.setTextColor(...neonRed);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(`${ocupados}`, margin + 185, y + 20);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(153, 27, 27);
+    doc.text("Dominios Ocupados", margin + 185, y + 32);
+
+    // Tarjeta 3: Dudosos / Errores (Gris Pastel)
+    doc.setFillColor(248, 250, 252); 
+    doc.setDrawColor(...neutralGray);
+    doc.roundedRect(margin + 340, y, 175, 42, 4, 4, 'FD');
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(`${dudosos}`, margin + 355, y + 20);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text("Excedidos o Desconocidos", margin + 355, y + 32);
+    
+    y += 65;
+    
+    // --- CABECERA DE LA TABLA ---
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Listado Detallado de Resultados", margin, y);
+    
+    y += 14;
+    
+    doc.setFillColor(...lightGray);
+    doc.rect(margin, y, width - (margin * 2), 22, 'F');
+    doc.setFontSize(8.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text("#", margin + 12, y + 14);
+    doc.text("Dominio Consultando", margin + 35, y + 14);
+    doc.text("Estado", margin + 240, y + 14);
+    doc.text("Método / Detección Técnica", margin + 340, y + 14);
+    
+    y += 22;
+    
+    // --- FILAS DE RESULTADOS ---
+    let pageNum = 1;
+    doc.setFont("Helvetica", "normal");
+    
+    bulkResultsData.forEach((row, idx) => {
+        // Salto de página inteligente
+        if (y > 760) {
+            // Número de página al pie
+            doc.setFontSize(7.5);
+            doc.setTextColor(...neutralGray);
+            doc.text(`Página ${pageNum}`, width / 2 - 15, 805);
+            
+            doc.addPage();
+            pageNum++;
+            y = 50;
+            
+            // Re-dibujar cabecera de la tabla en nueva página
+            doc.setFillColor(...lightGray);
+            doc.rect(margin, y, width - (margin * 2), 22, 'F');
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(8.5);
+            doc.setTextColor(71, 85, 105);
+            doc.text("#", margin + 12, y + 14);
+            doc.text("Dominio Consultando", margin + 35, y + 14);
+            doc.text("Estado", margin + 240, y + 14);
+            doc.text("Método / Detección Técnica", margin + 340, y + 14);
+            y += 22;
+            doc.setFont("Helvetica", "normal");
+        }
+        
+        // Cebra alternando colores
+        if (idx % 2 === 1) {
+            doc.setFillColor(252, 252, 252);
+            doc.rect(margin, y, width - (margin * 2), 19, 'F');
+        }
+        
+        // Línea de división entre celdas
+        doc.setDrawColor(...tableBorder);
+        doc.line(margin, y + 19, width - margin, y + 19);
+        
+        // Escribir datos
+        doc.setTextColor(51, 65, 85);
+        doc.setFontSize(8.5);
+        doc.text(`${(idx + 1).toString().padStart(2, '0')}`, margin + 12, y + 12);
+        
+        doc.setFont("Helvetica", "bold");
+        doc.text(row.domain, margin + 35, y + 12);
+        doc.setFont("Helvetica", "normal");
+        
+        // Formateado condicional para Estado
+        if (row.estado === 'DISPONIBLE') {
+            doc.setTextColor(...neonGreen);
+            doc.setFont("Helvetica", "bold");
+            doc.text("DISPONIBLE", margin + 240, y + 12);
+            doc.setFont("Helvetica", "normal");
+        } else if (row.estado === 'COMPRADO') {
+            doc.setTextColor(...neonRed);
+            doc.setFont("Helvetica", "bold");
+            doc.text("REGISTRADO", margin + 240, y + 12);
+            doc.setFont("Helvetica", "normal");
+        } else {
+            doc.setTextColor(148, 163, 184);
+            doc.text("DESCONOCIDO", margin + 240, y + 12);
+        }
+        
+        doc.setTextColor(100, 116, 139);
+        doc.setFontSize(8);
+        doc.text(`${row.metodo} (${row.detalle.split('(')[0].trim()})`, margin + 340, y + 12);
+        
+        y += 19;
+    });
+    
+    // Pie de la última página
+    doc.setFontSize(7.5);
+    doc.setTextColor(...neutralGray);
+    doc.text(`Página ${pageNum}`, width / 2 - 15, 805);
+    
+    // Descargar PDF
+    doc.save(`reporte_liberdom_${Date.now()}.pdf`);
+}
+

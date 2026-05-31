@@ -28,9 +28,7 @@
         <!-- Header -->
         <header class="app-header">
             <div class="logo-area">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                </div>
+                <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo LiberDom" class="logo-img">
                 <h1 id="brand-title">Liber<span>Dom</span></h1>
             </div>
             <nav class="nav-tabs">
@@ -124,9 +122,14 @@
                 <div class="bulk-results-section">
                     <div class="results-header">
                         <h3><i class="fa-solid fa-list-check"></i> Resultados en tiempo real:</h3>
-                        <button id="download-results-btn" class="download-btn disabled" disabled>
-                            <i class="fa-solid fa-file-arrow-down"></i> Descargar reporte (.txt)
-                        </button>
+                        <div class="action-buttons-group">
+                            <button id="download-results-btn" class="download-btn disabled" disabled>
+                                <i class="fa-solid fa-file-lines"></i> Reporte TXT
+                            </button>
+                            <button id="download-pdf-btn" class="download-btn pdf-btn disabled" disabled>
+                                <i class="fa-solid fa-file-pdf"></i> Reporte PDF
+                            </button>
+                        </div>
                     </div>
                     <div id="bulk-results-grid" class="results-grid">
                         <div class="empty-state">
@@ -199,6 +202,8 @@
     </div>
 
     <!-- Scripts JavaScript -->
+    <!-- jsPDF para reportes PDF modernos en el cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
