@@ -105,13 +105,13 @@ La mayoría de scripts de detección usan APIs de terceros que cobran o tienen f
 
 ```mermaid
 graph TD
-    A[Inicio: Ingresar Dominio] --> B(Paso 1: Resolución DNS Rápida)
-    B -->|Tiene IP Activa| C[Estado: Comprado (DNS)]
-    B -->|No tiene IP / Falla DNS| D(Paso 2: Query por Socket TCP Port 43)
-    D --> E{Consulta WHOIS Server}
-    E -->|Contiene patrones 'not found / available'| F[Estado: ¡DISPONIBLE!]
-    E -->|Contiene patrones de registro o datos| G[Estado: Comprado (WHOIS)]
-    E -->|Error de red / Servidor Protegido| H[Estado: Desconocido (Aviso Manual)]
+    A["Inicio: Ingresar Dominio"] --> B["Paso 1: Resolución DNS Rápida"]
+    B -->|Tiene IP Activa| C["Estado: Comprado (DNS)"]
+    B -->|No tiene IP / Falla DNS| D["Paso 2: Query por Socket TCP Port 43"]
+    D --> E{"Consulta WHOIS Server"}
+    E -->|Contiene patrones 'not found / available'| F["Estado: ¡DISPONIBLE!"]
+    E -->|Contiene patrones de registro o datos| G["Estado: Comprado (WHOIS)"]
+    E -->|Error de red / Servidor Protegido| H["Estado: Desconocido (Aviso Manual)"]
 ```
 
 ---
