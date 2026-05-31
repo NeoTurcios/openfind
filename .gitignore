@@ -1,0 +1,16 @@
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Archivos de resultados y logs locales
+resultados_dominios.txt
+dominios.txt
+.DS_Store
+.idea/
+.vscode/
