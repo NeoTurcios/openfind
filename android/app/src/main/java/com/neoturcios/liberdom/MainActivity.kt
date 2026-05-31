@@ -19,6 +19,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -159,7 +163,34 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Enable edge-to-edge display for Android 15/16+ (SDK 35/36)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContentView(R.layout.activity_main)
+
+        // Apply window insets for edge-to-edge: pad Dynamic Island for status bar
+        val rootLayout = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(android.R.id.content)
+
+        // Pad Dynamic Island (top) to account for status bar
+        val dynamicIslandCard = findViewById<View>(R.id.dynamicIsland)
+        ViewCompat.setOnApplyWindowInsetsListener(dynamicIslandCard) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top + 8
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+
+        // Pad bottom navigation dock to account for navigation bar
+        val bottomDock = findViewById<View>(R.id.bottomNavigationDock)
+        ViewCompat.setOnApplyWindowInsetsListener(bottomDock) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom + 8
+            }
+            WindowInsetsCompat.CONSUMED
+        }
 
         // Initialize Header & Dynamic Island
         dynamicIsland = findViewById(R.id.dynamicIsland)
