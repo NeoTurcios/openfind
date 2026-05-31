@@ -27,7 +27,7 @@ jobs:
     - name: Generate Gradle Wrapper
       run: |
         cd android
-        gradle wrapper
+        gradle wrapper --gradle-version 8.10
 
     - name: Make Gradle Wrapper Executable
       run: chmod +x android/gradlew
