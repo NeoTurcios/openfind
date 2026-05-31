@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/static/logo.webp" alt="Logo LiberDom" width="120" height="120" style="border-radius: 20px;">
+</p>
+
 # 🔎 LiberDom - Detector & Buscador de Dominios para Termux 🚀
 
 [![Termux Support](https://img.shields.io/badge/Platform-Termux%20%7C%20Linux-green?style=for-the-badge&logo=android)](https://termux.com/)
@@ -6,7 +10,6 @@
 [![License](https://img.shields.io/badge/Licencia-MIT-brightgreen?style=for-the-badge)](LICENSE)
 
 **LiberDom** es una herramienta en consola diseñada y optimizada especialmente para **Termux** y sistemas Linux. Permite verificar de manera instantánea si un dominio de internet está disponible para comprar o si ya tiene dueño (comprado). 
-
 ¡Perfecto para desarrolladores, emprendedores y sysadmins que necesitan buscar nombres rápidos para sus proyectos directamente desde su celular o terminal portátil! 📱💻
 
 ---
