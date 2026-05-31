@@ -1288,8 +1288,8 @@ class MainActivity : AppCompatActivity() {
         
         val txtDom = TextView(this).apply {
             text = res.domain.uppercase(Locale.getDefault())
-            textColor = Color.WHITE
-            textSize = 15sp
+            setTextColor(Color.WHITE)
+            textSize = 15f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             val params = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -1322,7 +1322,7 @@ class MainActivity : AppCompatActivity() {
             )
             
             setPadding(24, 8, 24, 8)
-            textSize = 11sp
+            textSize = 11f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             
             val params = RelativeLayout.LayoutParams(
@@ -1354,7 +1354,7 @@ class MainActivity : AppCompatActivity() {
             val makeLinkBtn = { name: String, url: String ->
                 Button(this).apply {
                     text = name
-                    textSize = 10sp
+                    textSize = 10f
                     setTextColor(Color.WHITE)
                     setBackgroundColor(Color.parseColor("#1C2436"))
                     setPadding(12, 4, 12, 4)
@@ -1441,8 +1441,8 @@ class MainActivity : AppCompatActivity() {
 
         val txtDom = TextView(this).apply {
             text = domainName
-            textColor = Color.WHITE
-            textSize = 14sp
+            setTextColor(Color.WHITE)
+            textSize = 14f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             val params = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             layoutParams = params
@@ -1455,7 +1455,7 @@ class MainActivity : AppCompatActivity() {
 
         val btnRowCheck = Button(this).apply {
             text = if (currentLang == "es") "Verificar" else "Check"
-            textSize = 11sp
+            textSize = 11f
             setTextColor(Color.parseColor("#070b13"))
             setBackgroundColor(Color.parseColor("#00e676"))
             setPadding(16, 4, 16, 4)
@@ -1498,7 +1498,7 @@ class MainActivity : AppCompatActivity() {
                             )
                             
                             setPadding(16, 6, 16, 6)
-                            textSize = 11sp
+                            textSize = 11f
                             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                         }
 
@@ -1551,8 +1551,8 @@ class MainActivity : AppCompatActivity() {
         if (list.length() == 0) {
             val emptyMsg = TextView(this).apply {
                 text = if (currentLang == "es") "Lista vacía por ahora." else "List is currently empty."
-                textColor = Color.GRAY
-                textSize = 14sp
+                setTextColor(Color.GRAY)
+                textSize = 14f
                 gravity = android.view.Gravity.CENTER
                 setPadding(0, 48, 0, 48)
             }
@@ -1586,8 +1586,8 @@ class MainActivity : AppCompatActivity() {
 
             val txtDom = TextView(this).apply {
                 text = domainName.uppercase(Locale.getDefault())
-                textColor = Color.WHITE
-                textSize = 14sp
+                setTextColor(Color.WHITE)
+                textSize = 14f
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 val params = RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -1632,7 +1632,7 @@ class MainActivity : AppCompatActivity() {
                 )
 
                 setPadding(16, 4, 16, 4)
-                textSize = 10sp
+                textSize = 10f
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
 
