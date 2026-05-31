@@ -172,7 +172,7 @@ liberdom
 La mayoría de scripts de detección usan APIs de terceros limitadas o de pago. **LiberDom** utiliza un sistema autónomo de consulta en dos fases:
 
 ```mermaid
-graph TD
+flowchart TD
     A["Inicio: Dominio"] --> B["Paso 1: Resolución DNS"]
     B -->|Tiene IP| C["Comprado (DNS)"]
     B -->|Sin IP| D["Paso 2: Consulta WHOIS (Puerto 43)"]
