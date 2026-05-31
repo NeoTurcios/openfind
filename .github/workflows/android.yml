@@ -30,11 +30,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Generate Gradle Wrapper
-      run: |
-        cd android
-        gradle wrapper --gradle-version 8.10.2
-
     - name: Make Gradle Wrapper Executable
       run: chmod +x android/gradlew
 
