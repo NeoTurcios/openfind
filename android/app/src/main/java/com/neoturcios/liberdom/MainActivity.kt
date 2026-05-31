@@ -15,12 +15,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import org.json.JSONArray
@@ -162,19 +162,12 @@ class MainActivity : AppCompatActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        // Enable edge-to-edge display for Android 15/16+ (SDK 35/36)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContentView(R.layout.activity_main)
 
-        // Apply window insets for edge-to-edge: pad Dynamic Island for status bar
-        val rootLayout = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(android.R.id.content)
-
-        // Pad Dynamic Island (top) to account for status bar
-        val dynamicIslandCard = findViewById<View>(R.id.dynamicIsland)
-        ViewCompat.setOnApplyWindowInsetsListener(dynamicIslandCard) { v, windowInsets ->
+        // Pad Dynamic Island for status bar insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dynamicIsland)) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = insets.top + 8
@@ -182,9 +175,8 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
-        // Pad bottom navigation dock to account for navigation bar
-        val bottomDock = findViewById<View>(R.id.bottomNavigationDock)
-        ViewCompat.setOnApplyWindowInsetsListener(bottomDock) { v, windowInsets ->
+        // Pad bottom navigation dock for navigation bar insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bottomNavigationDock)) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = insets.bottom + 8
@@ -616,9 +608,10 @@ class MainActivity : AppCompatActivity() {
         
         showDynamicIslandLoader(true, domain)
 
+        val lang = currentLang
         Thread {
             try {
-                val result = performSingleLookup(domain)
+                val result = performSingleLookup(domain, lang)
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     txtLoading.visibility = View.GONE
@@ -641,7 +634,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun performSingleLookup(domain: String): DomainResult {
+    private fun performSingleLookup(domain: String, lang: String): DomainResult {
         // 1. DNS Phase
         var ip: String? = null
         try {
@@ -655,7 +648,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "comprado",
-                detail = if (currentLang == "es") "Registrado (Activo por DNS)" else "Registered (Active via DNS)",
+                detail = if (lang == "es") "Registrado (Activo por DNS)" else "Registered (Active via DNS)",
                 ip = ip,
                 registrar = null,
                 creationDate = null,
@@ -702,7 +695,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "desconocido",
-                detail = if (currentLang == "es") "Error de red: ${rawWhois.substring(6)}" else "Network error: ${rawWhois.substring(6)}",
+                detail = if (lang == "es") "Error de red: ${rawWhois.substring(6)}" else "Network error: ${rawWhois.substring(6)}",
                 ip = null,
                 registrar = null,
                 creationDate = null,
@@ -749,13 +742,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val metodo = if (currentLang == "es") "Consulta WHOIS Socket 43" else "WHOIS Socket 43 Query"
+        val metodo = if (lang == "es") "Consulta WHOIS Socket 43" else "WHOIS Socket 43 Query"
 
         if (estaDisponible) {
             return DomainResult(
                 domain = domain,
                 status = "disponible",
-                detail = if (currentLang == "es") "¡Disponible para registro!" else "Available for registration!",
+                detail = if (lang == "es") "¡Disponible para registro!" else "Available for registration!",
                 ip = null,
                 registrar = null,
                 creationDate = null,
@@ -798,7 +791,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "comprado",
-                detail = if (currentLang == "es") "Registrado (Confirmado por WHOIS)" else "Registered (Confirmed by WHOIS)",
+                detail = if (lang == "es") "Registrado (Confirmado por WHOIS)" else "Registered (Confirmed by WHOIS)",
                 ip = null,
                 registrar = registrar,
                 creationDate = fechaCreacion,
@@ -808,7 +801,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "desconocido",
-                detail = if (currentLang == "es") "No se pudo determinar con certeza" else "Could not be determined with certainty",
+                detail = if (lang == "es") "No se pudo determinar con certeza" else "Could not be determined with certainty",
                 ip = null,
                 registrar = null,
                 creationDate = null,
@@ -819,7 +812,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun queryWhoisServer(domain: String, server: String): String {
         return try {
-            val socket = Socket(server, 43)
+            val socket = Socket()
+            socket.connect(java.net.InetSocketAddress(server, 43), 6000)
             socket.soTimeout = 6000
             val out = PrintWriter(socket.getOutputStream(), true)
             val reader = BufferedReader(InputStreamReader(socket.getInputStream(), "UTF-8"))
@@ -1274,10 +1268,11 @@ class MainActivity : AppCompatActivity() {
 
         updateStats()
 
+        val lang = currentLang
         Thread {
             for (domain in domainsToCheck) {
                 try {
-                    val res = performSingleLookup(domain)
+                    val res = performSingleLookup(domain, lang)
                     runOnUiThread {
                         checkedCount++
                         if (res.status == "disponible") freeCount++ else takenCount++
@@ -1504,9 +1499,10 @@ class MainActivity : AppCompatActivity() {
         btnRowCheck.setOnClickListener {
             btnRowCheck.text = "..."
             btnRowCheck.isEnabled = false
+            val lang = currentLang
             Thread {
                 try {
-                    val result = performSingleLookup(domainName)
+                    val result = performSingleLookup(domainName, lang)
                     runOnUiThread {
                         btnRowCheck.visibility = View.GONE
                         
