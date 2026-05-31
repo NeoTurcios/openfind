@@ -280,6 +280,24 @@ const translations = {
 
 ---
 
+## 📄 Licencia y Términos de Uso
+
+Este proyecto se distribuye bajo una **Licencia Personalizada de Uso No Comercial y Atribución Obligatoria**.
+
+### ✅ Lo que SÍ está permitido:
+*   **Colaborar e implementar mejoras:** Puedes hacer un fork del proyecto y enviar tus Pull Requests.
+*   **Personalizar el diseño y funciones:** Puedes modificar libremente el logotipo, el nombre de la aplicación, el paquete de distribución (ej: cambiar el package de Android), el diseño visual y agregar/alterar funciones técnicas.
+*   **Re-subir y redistribuir:** Puedes re-subir la app o el script modificado bajo tu autoría siempre y cuando cumplas los términos obligatorios de atribución.
+
+### ❌ Lo que está estrictamente PROHIBIDO:
+*   **Venta y comercialización:** Queda completamente prohibido vender, alquilar, sublicenciar, comercializar o rentabilizar este software o cualquier parte de su código fuente. **No puedes cobrar por este proyecto.** Debe ser 100% gratuito.
+
+### ⚠️ Requisito Obligatorio:
+*   **Atribución visible (Enlace original):** Si modificas, recompilas o publicas este software (en CLI, Web, Telegram o APK móvil), **debes dejar de forma visible y accesible en la interfaz** el enlace al repositorio original de GitHub:  
+    `https://github.com/NeoTurcios/liberdom`
+
+---
+
 ## 🤝 Contribuciones y Soporte
 
 ¡Este proyecto es 100% libre y público! Si te ayudó en tus proyectos o te gusta:

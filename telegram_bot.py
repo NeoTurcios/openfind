@@ -80,15 +80,21 @@ BOT_TEXTS = {
             "• Envía cualquier dominio directamente (ej: <code>miweb.com</code>).\n"
             "• O usa el comando /check seguido de tu dominio.\n"
             "• Para ayuda detallada, escribe /help.\n\n"
+            "ℹ️ <b>Licencia y Repositorio:</b>\n"
+            "Queda estrictamente prohibida la venta o uso comercial de este código. Se permite modificar logo, paquete, nombre, diseño y funciones para su redistribución siempre que se mantenga de forma visible este enlace al repositorio original de GitHub:\n"
+            "https://github.com/NeoTurcios/liberdom.git\n\n"
             "👉 <b>Selecciona tu idioma:</b>"
         ),
         "help": (
             "📚 <b>Guía de Ayuda - LiberDom Bot</b>\n\n"
             "Comandos disponibles:\n"
-            "• /start - Mensaje de inicio y selección de idioma.\n"
+            "• /start - Mensaje de inicio, selección de idioma y licencia.\n"
             "• /help - Muestra este manual de uso.\n"
             "• /lang - Cambia tu preferencia de idioma (ES/EN).\n"
             "• /check &lt;dominio&gt; - Comprobación de disponibilidad técnica.\n\n"
+            "⚖️ <b>Licencia de Uso:</b>\n"
+            "Proyecto bajo Licencia No Comercial y Atribución Obligatoria. Las colaboraciones y modificaciones (logo, nombre, paquete, funciones) son bienvenidas, pero está prohibido revender este proyecto. Debe incluirse el link de GitHub:\n"
+            "https://github.com/NeoTurcios/liberdom.git\n\n"
             "💡 <b>Consejo:</b> ¡Puedes enviarme cualquier dominio en texto plano directamente! Yo me encargo de limpiarlo y darte el estado en milisegundos."
         ),
         "lang_switch": "🌐 <b>Selecciona tu idioma / Select your language:</b>",
@@ -105,7 +111,7 @@ BOT_TEXTS = {
         "card_registrar": "Registrador",
         "card_created": "Creación",
         "card_method": "Método",
-        "card_footer": "Verificado con LiberDom Bot 🚀"
+        "card_footer": "Verificado con LiberDom | GitHub: github.com/NeoTurcios/liberdom"
     },
     "en": {
         "welcome": (
@@ -115,15 +121,21 @@ BOT_TEXTS = {
             "• Send any domain directly (e.g. <code>myweb.com</code>).\n"
             "• Or use /check command followed by your domain.\n"
             "• For detailed help, type /help.\n\n"
+            "ℹ️ <b>License & Repository:</b>\n"
+            "Selling or commercial use of this code is strictly prohibited. You may customize the logo, package name, design, and features as long as you prominently retain the original GitHub repository link:\n"
+            "https://github.com/NeoTurcios/liberdom.git\n\n"
             "👉 <b>Select your language:</b>"
         ),
         "help": (
             "📚 <b>Help Guide - LiberDom Bot</b>\n\n"
             "Available commands:\n"
-            "• /start - Start message and language selection.\n"
+            "• /start - Start message, language selection, and license.\n"
             "• /help - Shows this instruction manual.\n"
             "• /lang - Change your language preference (ES/EN).\n"
             "• /check &lt;domain&gt; - Technical availability check.\n\n"
+            "⚖️ <b>License terms:</b>\n"
+            "Under Custom Non-Commercial & Attribution Required License. Modifications (logo, package, name, features) are permitted, but commercial reselling of this code is strictly forbidden. GitHub link must remain visible:\n"
+            "https://github.com/NeoTurcios/liberdom.git\n\n"
             "💡 <b>Tip:</b> You can send me any domain in plain text directly! I will clean and parse it, then check it in milliseconds."
         ),
         "lang_switch": "🌐 <b>Select your language / Selecciona tu idioma:</b>",
@@ -140,7 +152,7 @@ BOT_TEXTS = {
         "card_registrar": "Registrar",
         "card_created": "Created",
         "card_method": "Method",
-        "card_footer": "Verified with LiberDom Bot 🚀"
+        "card_footer": "Verified with LiberDom | GitHub: github.com/NeoTurcios/liberdom"
     }
 }
 

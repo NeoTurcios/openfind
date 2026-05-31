@@ -168,10 +168,13 @@ Cada dominio debe ir en una línea separada. Ejemplo:
     tusitio.net
     otroweb.io{FIN}
 
-{NEGRITA}{AMARILLO}4. Licencia y Uso{FIN}
-Este script es público y 100% de código abierto. ¡Puedes usarlo y editarlo 
-para integrarlo en tus herramientas de automatización de hacking ético, 
-desarrollo web o marketing!
+{NEGRITA}{AMARILLO}4. Licencia No Comercial y Atribución Obligatoria{FIN}
+Este proyecto es público y de código abierto. Se permiten colaboraciones,
+modificaciones del diseño, logotipo, nombre, paquete y funciones para su
+redistribución, siempre y cuando:
+• {CURSIVA}Quede estrictamente prohibida la venta o uso comercial de este código.{FIN}
+• {CURSIVA}Se mantenga de forma visible el enlace al repositorio original de GitHub:{FIN}
+  https://github.com/NeoTurcios/liberdom.git
 """
     },
     "en": {
@@ -293,9 +296,13 @@ Each domain must be on a separate line. Example:
     yoursite.net
     otherweb.io{FIN}
 
-{NEGRITA}{AMARILLO}4. License and Usage{FIN}
-This script is public and 100% open source. You can use and edit it 
-to integrate it into your ethical hacking, web dev, or marketing tools!
+{NEGRITA}{AMARILLO}4. Non-Commercial & Attribution Required License{FIN}
+This project is open-source. Collaborations, redesigns, and modifications of the 
+logo, name, package, visual theme, and features are permitted for redistribution, 
+as long as:
+• {CURSIVA}Selling, reselling, or commercial use of this code is strictly prohibited.{FIN}
+• {CURSIVA}You prominently display the link to the original GitHub repository:{FIN}
+  https://github.com/NeoTurcios/liberdom.git
 """
     }
 }
@@ -323,6 +330,7 @@ def mostrar_banner():
 ║               {AMARILLO}{padding}{sub}{right_padding}{CIAN}            ║
 ╚═══════════════════════════════════════════════════════════════╝{FIN}"""
     print(banner)
+    print(f" {GRIS}Original Repository: https://github.com/NeoTurcios/liberdom{FIN}")
 
 # ==========================================
 # MOTOR DE BÚSQUEDA Y DETECCION WHOIS/DNS
