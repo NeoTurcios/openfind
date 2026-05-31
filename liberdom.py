@@ -373,7 +373,7 @@ def registrar_whois_servidor(domain, server=None):
     
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(6.0)
+        s.settimeout(3.0)
         s.connect((server, 43))
         
         # Ajustes de formato de consulta para servidores especiales

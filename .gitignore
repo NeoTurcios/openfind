@@ -14,3 +14,8 @@ dominios.txt
 .DS_Store
 .idea/
 .vscode/
+
+# Configuración y base de datos local del bot de Telegram
+.telegram_bot_config.json
+.telegram_bot_users.json
+.liberdom_config.json

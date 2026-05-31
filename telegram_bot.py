@@ -23,6 +23,7 @@ VERDE = "\033[1;92m"
 CIAN = "\033[1;96m"
 AMARILLO = "\033[1;93m"
 ROJO = "\033[1;91m"
+GRIS = "\033[0;37m"
 FIN = "\033[0m"
 
 # ==========================================
@@ -69,91 +70,36 @@ def guardar_usuarios():
         pass
 
 # ==========================================
-# TEXTOS DEL BOT DE TELEGRAM (I18N)
+# TEXTOS DEL BOT DE TELEGRAM (ENGLISH ONLY)
 # ==========================================
 BOT_TEXTS = {
-    "es": {
-        "welcome": (
-            "🔍 <b>¡Bienvenido a LiberDom Bot!</b>\n\n"
-            "Soy el detector híbrido de dominios ultrarrápido y autónomo, optimizado para ayudarte a encontrar dominios libres sin límites ni intermediarios de pago.\n\n"
-            "🌐 <b>¿Cómo usarme?</b>\n"
-            "• Envía cualquier dominio directamente (ej: <code>miweb.com</code>).\n"
-            "• O usa el comando /check seguido de tu dominio.\n"
-            "• Para ayuda detallada, escribe /help.\n\n"
-            "ℹ️ <b>Licencia y Repositorio:</b>\n"
-            "Queda estrictamente prohibida la venta o uso comercial de este código. Se permite modificar logo, paquete, nombre, diseño y funciones para su redistribución siempre que se mantenga de forma visible este enlace al repositorio original de GitHub:\n"
-            "https://github.com/NeoTurcios/liberdom.git\n\n"
-            "👉 <b>Selecciona tu idioma:</b>"
-        ),
-        "help": (
-            "📚 <b>Guía de Ayuda - LiberDom Bot</b>\n\n"
-            "Comandos disponibles:\n"
-            "• /start - Mensaje de inicio, selección de idioma y licencia.\n"
-            "• /help - Muestra este manual de uso.\n"
-            "• /lang - Cambia tu preferencia de idioma (ES/EN).\n"
-            "• /check &lt;dominio&gt; - Comprobación de disponibilidad técnica.\n\n"
-            "⚖️ <b>Licencia de Uso:</b>\n"
-            "Proyecto bajo Licencia No Comercial y Atribución Obligatoria. Las colaboraciones y modificaciones (logo, nombre, paquete, funciones) son bienvenidas, pero está prohibido revender este proyecto. Debe incluirse el link de GitHub:\n"
-            "https://github.com/NeoTurcios/liberdom.git\n\n"
-            "💡 <b>Consejo:</b> ¡Puedes enviarme cualquier dominio en texto plano directamente! Yo me encargo de limpiarlo y darte el estado en milisegundos."
-        ),
-        "lang_switch": "🌐 <b>Selecciona tu idioma / Select your language:</b>",
-        "lang_changed": "✔ Idioma cambiado a <b>Español</b>.",
-        "checking": "⏳ Consultando bases de datos mundiales para <code>{domain}</code>...",
-        "invalid": "❌ <b>Formato inválido.</b> Introduce un dominio correcto (ej: <code>miweb.com</code>).",
-        "btn_es": "🇪🇸 Español",
-        "btn_en": "🇺🇸 English (Official)",
-        "card_avail": "¡Felicidades! Este dominio está libre para registro.",
-        "card_taken": "Dominio ya ocupado y registrado en internet.",
-        "card_unk": "No se pudo determinar con certeza (Límite WHOIS / TLD no soportado).",
-        "card_tech": "Detalles Técnicos",
-        "card_ip": "IP del Servidor",
-        "card_registrar": "Registrador",
-        "card_created": "Creación",
-        "card_method": "Método",
-        "card_footer": "Verificado con LiberDom | GitHub: github.com/NeoTurcios/liberdom"
-    },
-    "en": {
-        "welcome": (
-            "🔍 <b>Welcome to LiberDom Bot!</b>\n\n"
-            "I am the autonomous, ultra-fast hybrid domain availability detector, optimized to help you find free domains without limits or premium third-party APIs.\n\n"
-            "🌐 <b>How to use me?</b>\n"
-            "• Send any domain directly (e.g. <code>myweb.com</code>).\n"
-            "• Or use /check command followed by your domain.\n"
-            "• For detailed help, type /help.\n\n"
-            "ℹ️ <b>License & Repository:</b>\n"
-            "Selling or commercial use of this code is strictly prohibited. You may customize the logo, package name, design, and features as long as you prominently retain the original GitHub repository link:\n"
-            "https://github.com/NeoTurcios/liberdom.git\n\n"
-            "👉 <b>Select your language:</b>"
-        ),
-        "help": (
-            "📚 <b>Help Guide - LiberDom Bot</b>\n\n"
-            "Available commands:\n"
-            "• /start - Start message, language selection, and license.\n"
-            "• /help - Shows this instruction manual.\n"
-            "• /lang - Change your language preference (ES/EN).\n"
-            "• /check &lt;domain&gt; - Technical availability check.\n\n"
-            "⚖️ <b>License terms:</b>\n"
-            "Under Custom Non-Commercial & Attribution Required License. Modifications (logo, package, name, features) are permitted, but commercial reselling of this code is strictly forbidden. GitHub link must remain visible:\n"
-            "https://github.com/NeoTurcios/liberdom.git\n\n"
-            "💡 <b>Tip:</b> You can send me any domain in plain text directly! I will clean and parse it, then check it in milliseconds."
-        ),
-        "lang_switch": "🌐 <b>Select your language / Selecciona tu idioma:</b>",
-        "lang_changed": "✔ Language changed to <b>English</b>.",
-        "checking": "⏳ Querying global databases for <code>{domain}</code>...",
-        "invalid": "❌ <b>Invalid format.</b> Enter a correct domain format (e.g. <code>myweb.com</code>).",
-        "btn_es": "🇪🇸 Español",
-        "btn_en": "🇺🇸 English (Official)",
-        "card_avail": "Congratulations! This domain is free to register.",
-        "card_taken": "Domain already registered and taken on the internet.",
-        "card_unk": "Could not determine with certainty (WHOIS rate limit / TLD not supported).",
-        "card_tech": "Technical Details",
-        "card_ip": "Server IP",
-        "card_registrar": "Registrar",
-        "card_created": "Created",
-        "card_method": "Method",
-        "card_footer": "Verified with LiberDom | GitHub: github.com/NeoTurcios/liberdom"
-    }
+    "welcome": (
+        "🔍 <b>Welcome to LiberDom Bot!</b>\n\n"
+        "I am the autonomous, ultra-fast hybrid domain availability detector, optimized to help you find free domains without limits or premium third-party APIs.\n\n"
+        "🌐 <b>How to use me?</b>\n"
+        "• Send any domain directly (e.g. <code>myweb.com</code>).\n"
+        "• Or use /check command followed by your domain (e.g. <code>/check myweb.com</code>).\n"
+        "• For detailed help, type /help."
+    ),
+    "help": (
+        "📚 <b>Help Guide - LiberDom Bot</b>\n\n"
+        "Available commands:\n"
+        "• /start - Start message.\n"
+        "• /help - Shows this instruction manual.\n"
+        "• /check &lt;domain&gt; - Technical availability check.\n\n"
+        "💡 <b>Tip:</b> You can send me any domain in plain text directly in private chats! I will clean and parse it, then check it in milliseconds."
+    ),
+    "checking": "⏳ Querying global databases for <code>{domain}</code>...",
+    "invalid": "❌ <b>Invalid format.</b> Enter a correct domain format (e.g. <code>myweb.com</code>).",
+    "card_avail": "Congratulations! This domain is free to register.",
+    "card_taken": "Domain already registered and taken on the internet.",
+    "card_unk": "Could not determine with certainty (WHOIS rate limit / TLD not supported).",
+    "card_tech": "Technical Details",
+    "card_ip": "Server IP",
+    "card_registrar": "Registrar",
+    "card_created": "Created",
+    "card_method": "Method",
+    "card_footer": "Verified with LiberDom | GitHub: github.com/NeoTurcios/liberdom"
 }
 
 # ==========================================
@@ -163,6 +109,12 @@ class TelegramBot:
     def __init__(self, token):
         self.token = token
         self.base_url = f"https://api.telegram.org/bot{self.token}/"
+        self.id = None
+        self.username = ""
+        self.startup_time = None
+
+    def get_me(self):
+        return self._request("getMe")
 
     def _request(self, method, payload=None):
         url = self.base_url + method
@@ -177,7 +129,6 @@ class TelegramBot:
             with urllib.request.urlopen(req, timeout=10) as response:
                 return json.loads(response.read().decode("utf-8"))
         except Exception as e:
-            # Capturar errores silenciosamente o reportar en consola
             return {"ok": False, "description": str(e)}
 
     def get_updates(self, offset=None):
@@ -219,27 +170,20 @@ class TelegramBot:
 # ==========================================
 # LÓGICA DE PROCESAMIENTO
 # ==========================================
-def obtener_idioma(chat_id):
-    return USERS_LANG.get(str(chat_id), "es")
-
-def guardar_idioma(chat_id, lang):
-    USERS_LANG[str(chat_id)] = lang
-    guardar_usuarios()
-
-def formatear_tarjeta_html(domain, estado, detalle, info, lang):
-    t = BOT_TEXTS[lang]
+def formatear_tarjeta_html(domain, estado, detalle, info):
+    t = BOT_TEXTS
     
     if estado == "disponible":
         icon = "🟢"
-        status_label = "LIBRE" if lang == "es" else "FREE"
+        status_label = "FREE"
         desc = t["card_avail"]
     elif estado == "comprado":
         icon = "🔴"
-        status_label = "REGISTRADO" if lang == "es" else "TAKEN"
+        status_label = "TAKEN"
         desc = t["card_taken"]
     else:
         icon = "🟡"
-        status_label = "DESCONOCIDO" if lang == "es" else "UNKNOWN"
+        status_label = "UNKNOWN"
         desc = t["card_unk"]
 
     msg = f"{icon} <b>{domain.upper()}</b> | <b>{status_label}</b>\n\n"
@@ -258,55 +202,78 @@ def formatear_tarjeta_html(domain, estado, detalle, info, lang):
 
 def procesar_mensaje(bot, msg):
     chat_id = msg["chat"]["id"]
+    chat_type = msg["chat"]["type"]
+    user = msg.get("from", {}).get("username", "unknown")
     text = msg.get("text", "").strip()
+    msg_date = msg.get("date", 0)
     
+    print(f"{CIAN}[Recibido] Chat: {chat_type} ({chat_id}) | Usuario: @{user} | Mensaje: {text} | Fecha: {msg_date} | Startup: {bot.startup_time}{FIN}")
+    
+    # Ignorar mensajes antiguos (anteriores a la inicialización del bot)
+    if bot.startup_time and msg_date < bot.startup_time:
+        print(f"{ROJO}[Ignorado] Mensaje antiguo descartado.{FIN}")
+        return
+
+    # Detectar cuando el bot es añadido a un grupo/supergrupo
+    new_members = msg.get("new_chat_members", [])
+    if new_members:
+        for member in new_members:
+            if bot.id and member.get("id") == bot.id:
+                welcome_group = (
+                    f"👋 <b>Hello everyone! Thanks for adding me to the group.</b>\n\n"
+                    f"I am <b>LiberDom Bot</b>, the ultra-fast hybrid domain availability detector. 🌐\n\n"
+                    f"👥 <b>How to use me in this group?</b>\n"
+                    f"• Use the <code>/check &lt;domain&gt;</code> command to check availability in milliseconds (e.g. <code>/check myweb.com</code>).\n"
+                    f"• Use /help to see the user guide.\n\n"
+                    f"⚡ <i>Optimized, autonomous, and without limits!</i>"
+                )
+                bot.send_message(chat_id, welcome_group)
+                return
+
+    text = msg.get("text", "").strip()
     if not text:
         return
+
+    is_group = msg["chat"]["type"] in ["group", "supergroup"]
+
+    # Limpiar y normalizar comando (ej: /check@LiberDomBot -> /check)
+    if text.startswith("/"):
+        partes = text.split(maxsplit=1)
+        cmd_part = partes[0]
+        args_part = partes[1] if len(partes) > 1 else ""
         
-    lang = obtener_idioma(chat_id)
-    t = BOT_TEXTS[lang]
+        if "@" in cmd_part:
+            cmd_name, bot_user = cmd_part.split("@", 1)
+            if bot.username and bot_user.lower() != bot.username.lower():
+                return  # Para otro bot
+            cmd_part = cmd_name
+        
+        text_normalized = cmd_part + (" " + args_part if args_part else "")
+    else:
+        text_normalized = text
+
+    t = BOT_TEXTS
 
     # Comando /start
-    if text.startswith("/start"):
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {"text": t["btn_es"], "callback_data": "setlang_es"},
-                    {"text": t["btn_en"], "callback_data": "setlang_en"}
-                ]
-            ]
-        }
-        bot.send_message(chat_id, t["welcome"], keyboard)
+    if text_normalized.startswith("/start"):
+        bot.send_message(chat_id, t["welcome"])
         return
 
     # Comando /help
-    if text.startswith("/help"):
+    if text_normalized.startswith("/help"):
         bot.send_message(chat_id, t["help"])
-        return
-
-    # Comando /lang
-    if text.startswith("/lang") or text.startswith("/idioma"):
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {"text": t["btn_es"], "callback_data": "setlang_es"},
-                    {"text": t["btn_en"], "callback_data": "setlang_en"}
-                ]
-            ]
-        }
-        bot.send_message(chat_id, t["lang_switch"], keyboard)
         return
 
     # Comando /check o parsear dominios en texto plano
     dominio = ""
-    if text.startswith("/check"):
-        partes = text.split(maxsplit=1)
+    if text_normalized.startswith("/check"):
+        partes = text_normalized.split(maxsplit=1)
         if len(partes) > 1:
             dominio = partes[1].strip()
-    else:
+    elif not is_group:
+        # En grupos NO permitimos detectar dominios en texto plano para evitar spam/falsos positivos "a lo loco"
         # Detectar si el texto parece un dominio
-        # Soporta palabras con extensión y quita protocolos
-        clean_text = text.lower().replace("https://", "").replace("http://", "").replace("www.", "")
+        clean_text = text_normalized.lower().replace("https://", "").replace("http://", "").replace("www.", "")
         clean_text = clean_text.split("/")[0]
         if "." in clean_text and len(clean_text) >= 4 and not " " in clean_text:
             dominio = clean_text
@@ -324,29 +291,22 @@ def procesar_mensaje(bot, msg):
         # Enviar cargando
         loading_msg = bot.send_message(chat_id, t["checking"].format(domain=dom))
         
-        # Consultar motor híbrido local
-        estado, detalle, info = chequear_dominio(dom, dns_only=False, lang=lang)
+        # Consultar motor híbrido local (usamos lang='en')
+        estado, detalle, info = chequear_dominio(dom, dns_only=False, lang='en')
         
         # Formatear y actualizar mensaje
-        card_html = formatear_tarjeta_html(dom, estado, detalle, info, lang)
+        card_html = formatear_tarjeta_html(dom, estado, detalle, info)
         bot.edit_message_text(chat_id, loading_msg["result"]["message_id"], card_html)
     else:
-        # Si envían texto plano que no es comando ni dominio, responder breve guía
-        if text.startswith("/"):
-            bot.send_message(chat_id, t["invalid"])
+        # Si envían texto plano que no es comando ni dominio en chat privado, responder breve guía
+        # En grupos ignoramos por completo
+        if not is_group:
+            if text_normalized.startswith("/"):
+                bot.send_message(chat_id, t["invalid"])
 
 def procesar_callback(bot, cb):
-    cb_id = cb["id"]
-    chat_id = cb["message"]["chat"]["id"]
-    message_id = cb["message"]["message_id"]
-    data = cb.get("data", "")
-
-    if data.startswith("setlang_"):
-        lang = data.split("_")[1]
-        guardar_idioma(chat_id, lang)
-        
-        bot.answer_callback_query(cb_id, BOT_TEXTS[lang]["lang_changed"].replace("<b>", "").replace("</b>", ""))
-        bot.edit_message_text(chat_id, message_id, BOT_TEXTS[lang]["lang_changed"])
+    # Función vacía para compatibilidad de callbacks antiguos
+    pass
 
 # ==========================================
 # BUCLE DE POLLING PRINCIPAL
@@ -379,9 +339,9 @@ def main():
     bot = TelegramBot(token)
     
     print(f"{AMARILLO}⏳ Conectando con los servidores de Telegram Bot API...{FIN}")
-    test = bot.get_updates()
-    if not test.get("ok"):
-        print(f"\n{ROJO}❌ Error al conectar: {test.get('description')}{FIN}")
+    bot_info = bot.get_me()
+    if not bot_info.get("ok"):
+        print(f"\n{ROJO}❌ Error al conectar: {bot_info.get('description')}{FIN}")
         print(f"{AMARILLO}Asegúrate de que el Token sea válido y de tener conexión a Internet.{FIN}\n")
         
         reconfig = input("¿Deseas restablecer el token ahora? (s/n): ").strip().lower()
@@ -391,7 +351,12 @@ def main():
             print(f"{VERDE}Token restablecido. Ejecuta de nuevo para ingresar uno nuevo.{FIN}")
         sys.exit(1)
         
+    bot.id = bot_info["result"]["id"]
+    bot.username = bot_info["result"]["username"]
+    bot.startup_time = int(time.time())
+    
     print(f"{VERDE}✔ Conexión establecida con éxito.{FIN}")
+    print(f"{VERDE}✔ Conectado como @{bot.username} (ID: {bot.id}){FIN}")
     print(f"{CIAN}👉 El bot está encendido y escuchando mensajes en tiempo real...{FIN}")
     print(f"{GRIS}Presiona Ctrl+C en cualquier momento para apagar el motor.{FIN}\n")
     
