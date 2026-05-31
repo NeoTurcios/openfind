@@ -31,14 +31,14 @@ def limpiar_pantalla():
 def mostrar_banner():
     banner = f"""
 {CIAN}╔═══════════════════════════════════════════════════════════════╗
-║  {VERDE}██████╗ ██╗   ██╗███████╗ ██████╗ █████╗ ██████╗  ██████╗███╗   ███╗{CIAN}  ║
-║  {VERDE}██╔══██╗██║   ██║██╔════╝██╔════╝██╔══██╗██╔══██╗██╔════╝████╗ ████║{CIAN}  ║
-║  {VERDE}██████╔╝██║   ██║███████╗██║     ███████║██████╔╝██║     ██╔████╔██║{CIAN}  ║
-║  {VERDE}██╔══██╗██║   ██║╚════██║██║     ██╔══██║██╔══██╗██║     ██║╚██╔╝██║{CIAN}  ║
-║  {VERDE}██████╔╝╚██████╔╝███████║╚██████╗██║  ██║██║  ██║╚██████╗██║ ╚═╝ ██║{CIAN}  ║
-║  {VERDE}╚══════╝  ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝     ╚═╝{CIAN}  ║
+║  {VERDE}██╗     ██╗██████╗ ███████╗██████╗ ██████╗  ██████╗ ███╗   ███╗{CIAN}  ║
+║  {VERDE}██║     ██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔═══██╗████╗ ████║{CIAN}  ║
+║  {VERDE}██║     ██║██████╔╝█████╗  ██████╔╝██║  ██║██║   ██║██╔████╔██║{CIAN}  ║
+║  {VERDE}██║     ██║██╔══██╗██╔══╝  ██╔══██╗██║  ██║██║   ██║██║╚██╔╝██║{CIAN}  ║
+║  {VERDE}███████╗██║██████╔╝███████╗██║  ██║██████╔╝╚██████╔╝██║ ╚═╝ ██║{CIAN}  ║
+║  {VERDE}╚══════╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝{CIAN}  ║
 ╠═══════════════════════════════════════════════════════════════╣
-║         {BLANCO}🔍  Buscador y Detector de Dominios Libre  🔍         {CIAN}║
+║         {BLANCO}🔍    LiberDom - Detector de Dominios Libre    🔍         {CIAN}║
 ║                     {AMARILLO}¡Optimizado para Termux!                  {CIAN}║
 ╚═══════════════════════════════════════════════════════════════╝{FIN}"""
     print(banner)
@@ -653,7 +653,7 @@ def menu_principal():
             mostrar_manual()
         elif opcion == "5":
             limpiar_pantalla()
-            print(f"\n{VERDE}👋 ¡Gracias por usar BuscarDom! Diseñado para optimizar tus proyectos.{FIN}")
+            print(f"\n{VERDE}👋 ¡Gracias por usar LiberDom! Diseñado para optimizar tus proyectos.{FIN}")
             print(f"{CIAN}¡Haz tu repositorio público y compártelo con el mundo! 🚀{FIN}\n")
             sys.exit(0)
         else:

@@ -1,11 +1,11 @@
-# 🔎 BuscarDom - Detector & Buscador de Dominios para Termux 🚀
+# 🔎 LiberDom - Detector & Buscador de Dominios para Termux 🚀
 
 [![Termux Support](https://img.shields.io/badge/Platform-Termux%20%7C%20Linux-green?style=for-the-badge&logo=android)](https://termux.com/)
 [![Python Version](https://img.shields.io/badge/Python-3.7+-blue?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Language](https://img.shields.io/badge/Idioma-Espa%C3%B1ol%20%F0%9F%87%AA%F0%9F%87%B8-red?style=for-the-badge)](README.md)
 [![License](https://img.shields.io/badge/Licencia-MIT-brightgreen?style=for-the-badge)](LICENSE)
 
-**BuscarDom** es una herramienta en consola diseñada y optimizada especialmente para **Termux** y sistemas Linux. Permite verificar de manera instantánea si un dominio de internet está disponible para comprar o si ya tiene dueño (comprado). 
+**LiberDom** es una herramienta en consola diseñada y optimizada especialmente para **Termux** y sistemas Linux. Permite verificar de manera instantánea si un dominio de internet está disponible para comprar o si ya tiene dueño (comprado). 
 
 ¡Perfecto para desarrolladores, emprendedores y sysadmins que necesitan buscar nombres rápidos para sus proyectos directamente desde su celular o terminal portátil! 📱💻
 
@@ -27,7 +27,7 @@
 Para instalar todas las dependencias y dejar la herramienta configurada con comando de acceso directo, abre tu aplicación **Termux** y copia y pega la siguiente línea de comandos:
 
 ```bash
-pkg install git -y && git clone https://github.com/NeoTurcios/buscador-dominios-termux.git && cd buscador-dominios-termux && chmod +x install.sh && ./install.sh
+pkg install git -y && git clone https://github.com/NeoTurcios/liberdom.git && cd liberdom && chmod +x install.sh && ./install.sh
 ```
 
 *(Nota: Asegúrate de cambiar `TU_USUARIO` por tu usuario de GitHub una vez crees el repositorio público).*
@@ -46,8 +46,8 @@ Si prefieres hacerlo de forma individual, ejecuta:
    ```
 3. **Clonar este repositorio:**
    ```bash
-   git clone https://github.com/NeoTurcios/buscador-dominios-termux.git
-   cd buscador-dominios-termux
+   git clone https://github.com/NeoTurcios/liberdom.git
+   cd liberdom
    ```
 4. **Dar permisos de ejecución e instalar:**
    ```bash
@@ -62,10 +62,10 @@ Si prefieres hacerlo de forma individual, ejecuta:
 Una vez instalado, inicia la aplicación simplemente escribiendo:
 
 ```bash
-buscardom
+liberdom
 ```
 
-*(O de forma directa en la carpeta con `./buscardom.py`)*
+*(O de forma directa en la carpeta con `./liberdom.py`)*
 
 ### Menú Principal del Script:
 
@@ -101,7 +101,7 @@ buscardom
 
 ## ⚙️ ¿Cómo funciona bajo el capó?
 
-La mayoría de scripts de detección usan APIs de terceros que cobran o tienen fuertes limitaciones de cuotas por minuto. **BuscarDom** utiliza un sistema autónomo de consulta en dos fases:
+La mayoría de scripts de detección usan APIs de terceros que cobran o tienen fuertes limitaciones de cuotas por minuto. **LiberDom** utiliza un sistema autónomo de consulta en dos fases:
 
 ```mermaid
 graph TD
