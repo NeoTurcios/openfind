@@ -492,63 +492,62 @@
 
                     </LinearLayout>
 
-                    <!-- NEW FEATURE: REGISTRAR LINKS WITH SLEEK REDIRECT ENLACES -->
-                    <TextView
-                        android:id="@+id/lblRegisterLinks"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Registrar en proveedores sugeridos:"
-                        android:textColor="#e5e7eb"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:layout_marginBottom="12dp" />
-
+                    <!-- NEW FEATURE: AGENTE INTELIGENTE BRAND ANALYSIS CARD -->
                     <LinearLayout
+                        android:id="@+id/cardAgentAnalysis"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
+                        android:orientation="vertical"
+                        android:background="@drawable/card_background_default"
+                        android:padding="16dp"
+                        android:layout_marginTop="16dp"
+                        android:visibility="gone">
 
-                        <!-- Namecheap suggested button -->
-                        <Button
-                            android:id="@+id/btnLinkNamecheap"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Namecheap"
-                            android:textSize="11sp"
-                            android:textColor="#ffffff"
-                            android:backgroundTint="#de3700"
-                            android:layout_marginHorizontal="4dp"
-                            style="@style/Widget.Material3.Button.ElevatedButton" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
 
-                        <!-- Cloudflare suggested button -->
-                        <Button
-                            android:id="@+id/btnLinkCloudflare"
-                            android:layout_width="0dp"
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_generator"
+                                app:tint="#00e676" />
+
+                            <TextView
+                                android:id="@+id/lblAgentHeader"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Agente Inteligente OpenFind"
+                                android:textColor="#00e676"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:layout_marginStart="8dp" />
+
+                            <TextView
+                                android:id="@+id/lblAgentScore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Score: 9.2/10"
+                                android:textColor="#a855f7"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:background="#1aa855f7"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/lblAgentFeedback"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Cloudflare"
-                            android:textSize="11sp"
-                            android:textColor="#ffffff"
-                            android:backgroundTint="#f38020"
-                            android:layout_marginHorizontal="4dp"
-                            style="@style/Widget.Material3.Button.ElevatedButton" />
-
-                        <!-- GoDaddy suggested button -->
-                        <Button
-                            android:id="@+id/btnLinkGodaddy"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="GoDaddy"
-                            android:textSize="11sp"
-                            android:textColor="#ffffff"
-                            android:backgroundTint="#00a63f"
-                            android:layout_marginHorizontal="4dp"
-                            style="@style/Widget.Material3.Button.ElevatedButton" />
-
+                            android:text="Yo te recomiendo este dominio. Suena corporativo, moderno y sumamente profesional para startups y marcas digitales."
+                            android:textColor="#e5e7eb"
+                            android:textSize="12sp"
+                            android:lineSpacingMultiplier="1.2" />
                     </LinearLayout>
 
                 </LinearLayout>

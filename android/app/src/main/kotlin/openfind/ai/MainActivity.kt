@@ -107,11 +107,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnActionShare: ImageButton
     private lateinit var btnActionCopy: ImageButton
 
-    // Registrar Suggested Links
-    private lateinit var lblRegisterLinks: TextView
-    private lateinit var btnLinkNamecheap: Button
-    private lateinit var btnLinkCloudflare: Button
-    private lateinit var btnLinkGodaddy: Button
+    // AI Agent Analysis Views
+    private lateinit var cardAgentAnalysis: LinearLayout
+    private lateinit var lblAgentHeader: TextView
+    private lateinit var lblAgentScore: TextView
+    private lateinit var lblAgentFeedback: TextView
 
     // Panel 2: Bulk Check components
     private lateinit var txtBulkTitle: TextView
@@ -150,6 +150,10 @@ class MainActivity : AppCompatActivity() {
     private var currentLang = "es"
     private var libraryTabMode = "saved" // "saved" or "history"
     private var lastCheckedResult: DomainResult? = null
+
+    // Session dialog tracking to avoid spamming the user
+    private var hasShownHistoryLimitWarning = false
+    private var hasShownSavedLimitWarning = false
 
     // Domain data class
     data class DomainResult(
@@ -254,10 +258,11 @@ class MainActivity : AppCompatActivity() {
         btnActionShare = findViewById(R.id.btnActionShare)
         btnActionCopy = findViewById(R.id.btnActionCopy)
 
-        lblRegisterLinks = findViewById(R.id.lblRegisterLinks)
-        btnLinkNamecheap = findViewById(R.id.btnLinkNamecheap)
-        btnLinkCloudflare = findViewById(R.id.btnLinkCloudflare)
-        btnLinkGodaddy = findViewById(R.id.btnLinkGodaddy)
+        // AI Agent Brand Analysis View Bindings
+        cardAgentAnalysis = findViewById(R.id.cardAgentAnalysis)
+        lblAgentHeader = findViewById(R.id.lblAgentHeader)
+        lblAgentScore = findViewById(R.id.lblAgentScore)
+        lblAgentFeedback = findViewById(R.id.lblAgentFeedback)
 
         // Initialize Panel 2 Views (Bulk Search)
         txtBulkTitle = findViewById(R.id.txtBulkTitle)
@@ -323,13 +328,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // About dialog triggers on header title and footer
+        txtIslandTitle.setOnClickListener {
+            showAboutDialog()
+        }
+
         txtFooter.setOnClickListener {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/NeoTurcios/liberdom"))
-                startActivity(intent)
-            } catch (e: Exception) {
-                // Ignore
-            }
+            showAboutDialog()
         }
 
         // Action Toolbar click handlers
@@ -372,25 +377,6 @@ class MainActivity : AppCompatActivity() {
                     if (currentLang == "es") "¡Copiado al portapapeles!" else "Copied to clipboard!",
                     Toast.LENGTH_SHORT
                 ).show()
-            }
-        }
-
-        // Registrar suggestion click handlers
-        btnLinkNamecheap.setOnClickListener {
-            lastCheckedResult?.let {
-                openRegistrarLink("https://www.namecheap.com/domains/registration/results/?domain=${it.domain.lowercase(Locale.getDefault())}")
-            }
-        }
-
-        btnLinkCloudflare.setOnClickListener {
-            lastCheckedResult?.let {
-                openRegistrarLink("https://dash.cloudflare.com/domains/register?query=${it.domain.lowercase(Locale.getDefault())}")
-            }
-        }
-
-        btnLinkGodaddy.setOnClickListener {
-            lastCheckedResult?.let {
-                openRegistrarLink("https://www.godaddy.com/domainfind/search?domainToCheck=${it.domain.lowercase(Locale.getDefault())}")
             }
         }
 
@@ -492,6 +478,8 @@ class MainActivity : AppCompatActivity() {
         txtTabGenerator.text = if (currentLang == "es") "Generador" else "Generator"
         txtTabSaved.text = if (currentLang == "es") "Biblioteca" else "Library"
 
+        lblAgentHeader.text = if (currentLang == "es") "Agente Inteligente OpenFind" else "OpenFind Intelligent Agent"
+
         if (currentLang == "es") {
             imgLangFlag.setImageResource(R.drawable.flag_es)
             txtLangCode.text = "ES"
@@ -505,7 +493,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrador:"
             lblCreationDate.text = "Fecha de Creación:"
             lblMethod.text = "Método de Detección:"
-            txtFooter.text = "Diseñado con amor y código abierto\nBasado en LiberDom por NeoTurcios\nLicencia No Comercial © 2026"
+            txtFooter.text = "Diseñado con amor y código abierto\nDesarrollado por neopunto.com\nContacto: hola@neopunto.com | Licencia No Comercial © 2026"
 
             // Panel Bulk
             txtBulkTitle.text = "Búsqueda por Lote"
@@ -525,8 +513,6 @@ class MainActivity : AppCompatActivity() {
             btnTabSaved.text = "Guardados"
             btnTabHistory.text = "Historial"
             btnClearList.text = "Limpiar"
-            
-            lblRegisterLinks.text = "Registrar en proveedores sugeridos:"
         } else {
             imgLangFlag.setImageResource(R.drawable.flag_us)
             txtLangCode.text = "EN"
@@ -540,7 +526,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrar:"
             lblCreationDate.text = "Creation Date:"
             lblMethod.text = "Detection Method:"
-            txtFooter.text = "Designed with love and open source\nBased on LiberDom by NeoTurcios\nNon-Commercial License © 2026"
+            txtFooter.text = "Designed with love and open source\nDeveloped by neopunto.com\nContact: hola@neopunto.com | Non-Commercial License © 2026"
 
             // Panel Bulk
             txtBulkTitle.text = "Bulk Domain Check"
@@ -560,8 +546,6 @@ class MainActivity : AppCompatActivity() {
             btnTabSaved.text = "Saved"
             btnTabHistory.text = "History"
             btnClearList.text = "Clear"
-            
-            lblRegisterLinks.text = "Register with suggested registrars:"
         }
 
         // Sync list labels
@@ -612,6 +596,7 @@ class MainActivity : AppCompatActivity() {
         txtLoading.visibility = View.VISIBLE
         txtLoading.text = if (currentLang == "es") "Consultando bases de datos para $domain..." else "Querying global databases for $domain..."
         cardResult.visibility = View.GONE
+        cardAgentAnalysis.visibility = View.GONE
         
         showDynamicIslandLoader(true, domain)
 
@@ -770,7 +755,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         var estaComprado = false
-        for (pat in patronesComprado) {
+        for (pat patronesComprado) {
             if (finalLower.contains(pat)) {
                 estaComprado = true
                 break
@@ -821,7 +806,6 @@ class MainActivity : AppCompatActivity() {
     private fun queryWhoisServer(domain: String, server: String): String {
         return try {
             val socket = Socket()
-            // Apply remote timeout fix (6 seconds connection timeout)
             socket.connect(java.net.InetSocketAddress(server, 43), 6000)
             socket.soTimeout = 6000
             val out = PrintWriter(socket.getOutputStream(), true)
@@ -867,6 +851,12 @@ class MainActivity : AppCompatActivity() {
                 
                 txtResultDesc.text = if (currentLang == "es") "¡Felicidades! Este dominio está libre. Puedes registrarlo ahora mismo en tu proveedor favorito." else "Congratulations! This domain is free. You can register it right now with your favorite provider."
                 txtResultDesc.setTextColor(Color.parseColor("#00e676"))
+
+                // Perform autonomous AI Brand evaluation
+                val (score, feedback) = evaluateDomainHeuristically(result.domain)
+                lblAgentScore.text = "Score: $score/10"
+                lblAgentFeedback.text = feedback
+                cardAgentAnalysis.visibility = View.VISIBLE
             }
             "comprado" -> {
                 cardResult.setBackgroundResource(R.drawable.card_background_taken)
@@ -876,6 +866,11 @@ class MainActivity : AppCompatActivity() {
                 
                 txtResultDesc.text = if (currentLang == "es") "Dominio ya ocupado. Está comprado y registrado en internet." else "Domain already taken. It is purchased and registered on the internet."
                 txtResultDesc.setTextColor(Color.parseColor("#ef4444"))
+
+                // Already taken brand feedback
+                lblAgentScore.text = "Score: N/A"
+                lblAgentFeedback.text = if (currentLang == "es") "Este dominio ya está ocupado, por lo que no es posible evaluarlo como marca disponible." else "This domain is already taken, so it cannot be evaluated as an available brand."
+                cardAgentAnalysis.visibility = View.VISIBLE
             }
             else -> {
                 cardResult.setBackgroundResource(R.drawable.card_background_unknown)
@@ -885,6 +880,10 @@ class MainActivity : AppCompatActivity() {
                 
                 txtResultDesc.text = if (currentLang == "es") "No se pudo determinar con certeza (Límite de peticiones WHOIS o TLD no soportado)." else "Could not be determined with certainty (WHOIS rate limit or unsupported TLD)."
                 txtResultDesc.setTextColor(Color.parseColor("#eab308"))
+
+                lblAgentScore.text = "Score: ?"
+                lblAgentFeedback.text = if (currentLang == "es") "El estatus de registro es incierto debido a límites de cuota locales. No podemos evaluar la marca de forma confiable." else "Registration status is uncertain due to local rate limits. We cannot reliably evaluate this brand."
+                cardAgentAnalysis.visibility = View.VISIBLE
             }
         }
 
@@ -918,6 +917,238 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Toast.makeText(this, "No browser found", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // ==========================================
+    // LOCAL BRAND INTELLIGENCE ENGINE (HEURISTIC)
+    // ==========================================
+    private fun evaluateDomainHeuristically(domainName: String): Pair<Double, String> {
+        val nameOnly = domainName.substringBefore(".")
+        val tld = domainName.substringAfter(".", "")
+        val length = nameOnly.length
+        
+        var score = 8.0
+        var bonusReason = ""
+        
+        // 1. Length analysis (shorter is more corporate/premium)
+        if (length <= 5) {
+            score += 1.5
+            bonusReason = if (currentLang == "es") "Nombre ultra-corto premium" else "Ultra-short premium name"
+        } else if (length <= 8) {
+            score += 0.8
+        } else if (length > 12) {
+            score -= 1.5
+        }
+        
+        // 2. Dash/Number penalty
+        if (nameOnly.contains("-") || nameOnly.contains("_")) {
+            score -= 1.5
+        }
+        if (nameOnly.any { it.isDigit() }) {
+            score -= 1.0
+        }
+        
+        // 3. Buzzword evaluation (AI/Cloud/Tech focus)
+        if (nameOnly.endsWith("ai") || tld == "ai") {
+            score += 1.0
+            bonusReason = if (currentLang == "es") "Ideal para Inteligencia Artificial" else "Perfect for Artificial Intelligence"
+        } else if (nameOnly.endsWith("tech") || nameOnly.endsWith("flow") || nameOnly.endsWith("labs") || nameOnly.endsWith("hub")) {
+            score += 0.5
+        }
+        
+        // 4. LOCAL MEMORY MATCHING (High Intelligence Simulation)
+        try {
+            val savedList = getLocalStore("saved")
+            var memoryMatch = false
+            for (i in 0 until savedList.length()) {
+                val savedDomain = savedList.getJSONObject(i).getString("domain")
+                val savedNameOnly = savedDomain.substringBefore(".")
+                val savedTld = savedDomain.substringAfter(".", "")
+                
+                // If user likes domains with the same TLD or similar keywords
+                if (tld.isNotEmpty() && tld == savedTld) {
+                    score += 0.3
+                }
+                if (savedNameOnly.contains(nameOnly) || nameOnly.contains(savedNameOnly)) {
+                    memoryMatch = true
+                    score += 0.8
+                }
+            }
+            if (memoryMatch) {
+                bonusReason = if (currentLang == "es") "Coincide con tus intereses guardados en memoria local" else "Matches your local memory preferences"
+            }
+        } catch (e: Exception) {
+            // Ignore memory read errors
+        }
+        
+        // Clamp score between 1.0 and 10.0
+        score = Math.max(1.0, Math.min(10.0, score))
+        val formattedScore = Math.round(score * 10.0) / 10.0
+        
+        // Feedback generator
+        val feedback = if (currentLang == "es") {
+            when {
+                formattedScore >= 9.0 -> {
+                    if (bonusReason.isNotEmpty()) {
+                        "🤖 Yo te recomiendo este dominio. Es elegante, sumamente corporativo ($bonusReason). ¡Excelente marca!"
+                    } else {
+                        "🤖 Yo te recomiendo este dominio. Suena limpio, profesional y de gran impacto corporativo."
+                    }
+                }
+                formattedScore >= 7.5 -> "Muy buen nombre de marca. Memorable, ágil y excelente para startups o negocios digitales."
+                formattedScore >= 5.5 -> "Es aceptable comercialmente, aunque su pronunciación o deletreo podría ser complejo debido a la longitud o símbolos."
+                else -> "Es un nombre complejo para marca. Te sugiero usar el Generador de OpenFind AI para obtener ideas más memorables."
+            }
+        } else {
+            when {
+                formattedScore >= 9.0 -> {
+                    if (bonusReason.isNotEmpty()) {
+                        "🤖 I highly recommend this domain. Sleek, professional, and corporate ($bonusReason). Brilliant branding!"
+                    } else {
+                        "🤖 I highly recommend this domain. It sounds clean, professional, and has high corporate impact."
+                    }
+                }
+                formattedScore >= 7.5 -> "Very good brand name. Memorable, agile, and excellent for digital services."
+                formattedScore >= 5.5 -> "Commercially acceptable, though spelling could be complex due to length or characters."
+                else -> "Complex name for branding. I suggest using the OpenFind AI Generator to get more memorable options."
+            }
+        }
+        
+        return Pair(formattedScore, feedback)
+    }
+
+    // ==========================================
+    // STUNNING ACERCA DE (ABOUT SCREEN DIALOG)
+    // ==========================================
+    private fun showAboutDialog() {
+        val dialogView = ScrollView(this).apply {
+            setPadding(48, 48, 48, 48)
+            setBackgroundColor(Color.parseColor("#0F172A")) // Modern deep slate
+            
+            val container = LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = android.view.Gravity.CENTER_HORIZONTAL
+            }
+            
+            val titleView = TextView(this@MainActivity).apply {
+                text = "OpenFind AI"
+                setTextColor(Color.WHITE)
+                textSize = 24f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                gravity = android.view.Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, 8) }
+            }
+            
+            val subtitleView = TextView(this@MainActivity).apply {
+                text = "Agente Autónomo Local"
+                setTextColor(Color.parseColor("#00e676"))
+                textSize = 14f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                gravity = android.view.Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, 24) }
+            }
+            
+            val descView = TextView(this@MainActivity).apply {
+                text = if (currentLang == "es") {
+                    "Un buscador, detector y generador de nombres de marca inteligente de última generación. " +
+                    "Funciona 100% de manera local, protegiendo tu privacidad y sin depender de servidores o APIs externas."
+                } else {
+                    "Next-generation intelligent name generator, domain search, and detector. " +
+                    "Operates 100% locally, protecting your privacy with zero external servers or API dependencies."
+                }
+                setTextColor(Color.parseColor("#9CA3AF"))
+                textSize = 13f
+                lineSpacingMultiplier = 1.2f
+                gravity = android.view.Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, 24) }
+            }
+            
+            // Web Link
+            val btnWeb = Button(this@MainActivity).apply {
+                text = "neopunto.com"
+                setTextColor(Color.parseColor("#070b13"))
+                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00e676"))
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, 12) }
+                setOnClickListener {
+                    openRegistrarLink("https://neopunto.com")
+                }
+            }
+
+            // Contact Link
+            val btnContact = Button(this@MainActivity).apply {
+                text = "Contacto: hola@neopunto.com"
+                setTextColor(Color.WHITE)
+                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1C2436"))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, 12) }
+                setOnClickListener {
+                    try {
+                        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:hola@neopunto.com"))
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(this@MainActivity, "hola@neopunto.com", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            
+            container.addView(titleView)
+            container.addView(subtitleView)
+            container.addView(descView)
+            container.addView(btnWeb)
+            container.addView(btnContact)
+            
+            addView(container)
+        }
+        
+        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setView(dialogView)
+            .setPositiveButton(if (currentLang == "es") "Cerrar" else "Close", null)
+            .show()
+    }
+
+    // ==========================================
+    // AUTONOMOUS AGENT LIMIT DIALOG (A / B / CANCEL)
+    // ==========================================
+    private fun showStorageFullDialog(storeName: String, onSelection: (String) -> Unit) {
+        val title = if (currentLang == "es") "🤖 Alerta del Agente Autónomo" else "🤖 Autonomous Agent Warning"
+        val message = if (currentLang == "es") {
+            "Veo que la lista de guardados y recomendados está llena (10 elementos).\n\n" +
+            "¿Qué acción deseas que realice por ti?\n\n" +
+            "Selecciona A: Limpiar toda la biblioteca manualmente ahora.\n" +
+            "Selecciona B: Mantener la limpieza automática (borrar más antiguo)."
+        } else {
+            "I noticed that the saved and recommended list is full (10 items).\n\n" +
+            "What action would you like me to execute?\n\n" +
+            "Select A: Clear the entire library manually now.\n" +
+            "Select B: Keep auto-cleaning active (discard oldest)."
+        }
+
+        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(if (currentLang == "es") "Seleccionar A: Limpiar Todo" else "Select A: Clear All") { _, _ ->
+                onSelection("A")
+            }
+            .setNeutralButton(if (currentLang == "es") "Seleccionar B: Auto-limpieza" else "Select B: Auto-clean") { _, _ ->
+                onSelection("B")
+            }
+            .setNegativeButton(if (currentLang == "es") "Cancelar" else "Cancel", null)
+            .show()
     }
 
     // ==========================================
@@ -1012,8 +1243,8 @@ class MainActivity : AppCompatActivity() {
 
             // Description message inside PDF
             val desc = if (res.status == "disponible") {
-                if (currentLang == "es") "¡Felicidades! Este dominio está libre. Puedes registrarlo en tu proveedor favorito."
-                else "Congratulations! This domain is free. You can register it with your favorite provider."
+                if (currentLang == "es") "¡Felicidades! Este dominio está libre. Analizado localmente por OpenFind AI."
+                else "Congratulations! This domain is free. Locally analyzed by OpenFind AI."
             } else {
                 if (currentLang == "es") "Dominio ya ocupado. Está comprado y registrado en internet."
                 else "Domain already taken. It is purchased and registered on the internet."
@@ -1038,18 +1269,27 @@ class MainActivity : AppCompatActivity() {
             drawTableRow("Registrar:", res.registrar ?: "N/A (Not returned or available)")
             drawTableRow("Creation Date:", res.creationDate ?: "N/A (Not returned or available)")
 
-            // 4. suggested provider section
-            canvas.drawText("3. Suggested Registrars for Registration", 40f, y + 20f, paintSection)
+            // 4. suggested provider section (Clean and corporate information)
+            canvas.drawText("3. Intelligent Branding Evaluation", 40f, y + 20f, paintSection)
             canvas.drawLine(40f, y + 30f, 555f, y + 30f, paintDivider)
             y += 55f
             
-            canvas.drawText("This domain can be checked or bought directly (no premium fees) on:", 40f, y, paintBody)
+            val (score, feedback) = evaluateDomainHeuristically(res.domain)
+            canvas.drawText("Agent Rating Score: $score/10", 40f, y, paintBold)
             y += 25f
-            canvas.drawText("- Namecheap (https://www.namecheap.com)", 60f, y, paintBody)
+            canvas.drawText("Branding Analysis Feedback:", 40f, y, paintBold)
             y += 20f
-            canvas.drawText("- Cloudflare Registrar (https://dash.cloudflare.com)", 60f, y, paintBody)
-            y += 20f
-            canvas.drawText("- GoDaddy Domain Search (https://www.godaddy.com)", 60f, y, paintBody)
+            
+            // Wrap text for pdf
+            val feedbackLines = if (feedback.length > 70) {
+                listOf(feedback.substring(0, 68) + "-", feedback.substring(68))
+            } else {
+                listOf(feedback)
+            }
+            for (line in feedbackLines) {
+                canvas.drawText(line, 60f, y, paintBody)
+                y += 20f
+            }
 
             // 5. Drawing footer
             val footerBg = Paint().apply { color = Color.parseColor("#F9FAFB") }
@@ -1061,7 +1301,7 @@ class MainActivity : AppCompatActivity() {
                 textAlign = Paint.Align.CENTER
             }
             canvas.drawText("Generated natively by OpenFind Android Client. Open Source Security Check.", 297f, 810f, paintFooterText)
-            canvas.drawText("Non-Commercial Evaluation License © 2026", 297f, 825f, paintFooterText)
+            canvas.drawText("Non-Commercial Evaluation License | neopunto.com", 297f, 825f, paintFooterText)
 
             pdfDoc.finishPage(page)
 
@@ -1099,7 +1339,7 @@ class MainActivity : AppCompatActivity() {
             "Registrador: ${res.registrar ?: "N/A"}\n" +
             "Fecha Creación: ${res.creationDate ?: "N/A"}\n" +
             "Detección: ${res.method}\n\n" +
-            "¡Busca dominios gratis con la app OpenFind AI!"
+            "¡Busca dominios gratis con la app OpenFind AI de neopunto.com!"
         } else {
             "🔍 OpenFind AI Domain Analysis:\n\n" +
             "Domain: ${res.domain.uppercase(Locale.getDefault())}\n" +
@@ -1108,7 +1348,7 @@ class MainActivity : AppCompatActivity() {
             "Registrar: ${res.registrar ?: "N/A"}\n" +
             "Created: ${res.creationDate ?: "N/A"}\n" +
             "Method: ${res.method}\n\n" +
-            "Check domains for free with OpenFind AI Android!"
+            "Check domains for free with OpenFind AI Android from neopunto.com!"
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -1136,6 +1376,24 @@ class MainActivity : AppCompatActivity() {
     private fun addToLocalStore(storeName: String, res: DomainResult) {
         val list = getLocalStore(storeName)
         
+        // Trigger Autonomous Agent Dialog if limit is reached (exactly 10) to let them choose A/B/Cancel
+        val warningShown = if (storeName == "saved") hasShownSavedLimitWarning else hasShownHistoryLimitWarning
+        if (list.length() >= 10 && !warningShown) {
+            if (storeName == "saved") hasShownSavedLimitWarning = true else hasShownHistoryLimitWarning = true
+            runOnUiThread {
+                showStorageFullDialog(storeName) { choice ->
+                    if (choice == "A") {
+                        val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+                        sp.edit().putString("openfind_$storeName", "[]").apply()
+                        if (panelSaved.visibility == View.VISIBLE) refreshLibraryPanel()
+                        Toast.makeText(this@MainActivity, if (currentLang == "es") "Biblioteca vaciada" else "Library cleared", Toast.LENGTH_SHORT).show()
+                    } else if (choice == "B") {
+                        Toast.makeText(this@MainActivity, if (currentLang == "es") "Auto-limpieza activa" else "Auto-clean active", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
         // Check duplication
         val newList = JSONArray()
         val obj = JSONObject().apply {
@@ -1157,7 +1415,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Limit size to 10 items as requested (was 50)
+        // Limit size to 10 items as requested
         val cappedList = JSONArray()
         val limit = minOf(newList.length(), 10)
         for (i in 0 until limit) {
@@ -1192,6 +1450,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         } else {
+            // Trigger limit warnings if full
+            if (saved.length() >= 10 && !hasShownSavedLimitWarning) {
+                hasShownSavedLimitWarning = true
+                runOnUiThread {
+                    showStorageFullDialog("saved") { choice ->
+                        if (choice == "A") {
+                            val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+                            sp.edit().putString("openfind_saved", "[]").apply()
+                            if (panelSaved.visibility == View.VISIBLE) refreshLibraryPanel()
+                        }
+                    }
+                }
+            }
+
             // Add
             val obj = JSONObject().apply {
                 put("domain", res.domain)
@@ -1209,7 +1481,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Limit saved items to 10 as well to be clean
+        // Limit saved items to 10
         val cappedSaved = JSONArray()
         val limit = minOf(newList.length(), 10)
         for (i in 0 until limit) {
@@ -1380,9 +1652,9 @@ class MainActivity : AppCompatActivity() {
         topLayout.addView(txtBadge)
         row.addView(topLayout)
 
-        // Show quick registrar recommendations if free
+        // Show Agent Recommendation tag if free (Removed registrar links as requested)
         if (res.status == "disponible") {
-            val linkLayout = LinearLayout(this).apply {
+            val tagLayout = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 val params = LinearLayout.LayoutParams(
@@ -1393,24 +1665,19 @@ class MainActivity : AppCompatActivity() {
                 layoutParams = params
             }
 
-            val makeLinkBtn = { name: String, url: String ->
-                Button(this).apply {
-                    text = name
-                    textSize = 10f
-                    setTextColor(Color.WHITE)
-                    setBackgroundColor(Color.parseColor("#1C2436"))
-                    setPadding(12, 4, 12, 4)
-                    val p = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                    p.setMargins(4, 0, 4, 0)
-                    layoutParams = p
-                    setOnClickListener { openRegistrarLink(url) }
+            val txtRecommend = TextView(this).apply {
+                val (score, _) = evaluateDomainHeuristically(res.domain)
+                text = if (currentLang == "es") {
+                    "🤖 Agente: Altamente recomendado (Score: $score/10)"
+                } else {
+                    "🤖 Agent: Highly recommended (Score: $score/10)"
                 }
+                setTextColor(Color.parseColor("#00e676"))
+                textSize = 11f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
             }
-
-            linkLayout.addView(makeLinkBtn("Namecheap", "https://www.namecheap.com/domains/registration/results/?domain=${res.domain}"))
-            linkLayout.addView(makeLinkBtn("Cloudflare", "https://dash.cloudflare.com/domains/register?query=${res.domain}"))
-            linkLayout.addView(makeLinkBtn("GoDaddy", "https://www.godaddy.com/domainfind/search?domainToCheck=${res.domain}"))
-            row.addView(linkLayout)
+            tagLayout.addView(txtRecommend)
+            row.addView(tagLayout)
         }
 
         containerBulkResults.addView(row)
@@ -1522,10 +1789,17 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         btnRowCheck.visibility = View.GONE
                         
+                        // Local Heuristics & Memory Brand evaluation
+                        val (score, _) = evaluateDomainHeuristically(result.domain)
+
                         // Add Status Badge instead of check button
                         val txtBadge = TextView(this@MainActivity).apply {
                             text = if (result.status == "disponible") {
-                                if (currentLang == "es") "Libre" else "Free"
+                                if (currentLang == "es") {
+                                    if (score >= 8.5) "🤖 Yo te recomiendo esta ($score)" else "Libre ($score)"
+                                } else {
+                                    if (score >= 8.5) "🤖 Agent Recommended ($score)" else "Free ($score)"
+                                }
                             } else {
                                 if (currentLang == "es") "Ocupado" else "Taken"
                             }

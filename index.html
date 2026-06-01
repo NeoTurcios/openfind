@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenFind AI - Generador y Escáner Inteligente de Dominios</title>
+    <meta name="description" content="Generador autónomo e inteligente de dominios con memoria local, escáner DNS client-side sin límites, versión CLI de Termux y App premium para Android.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Modern Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Premium Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Fondo de neón animado con círculos difusos flotantes -->
+    <div class="bg-glow">
+        <div class="glow-sphere cyan-glow"></div>
+        <div class="glow-sphere purple-glow"></div>
+        <div class="glow-sphere pink-glow"></div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="app-container">
+        
+        <!-- Cabecera Premium -->
+        <header class="app-header">
+            <div class="logo-area" id="header-logo">
+                <img src="logo.webp" alt="OpenFind AI Logo" class="logo-img">
+                <h1 id="brand-title">Open<span>Find</span> AI</h1>
+            </div>
+            
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="generator" data-i18n="nav.generator"><i class="fa-solid fa-wand-magic-sparkles"></i> Generador IA</button>
+                <button class="tab-btn" data-tab="fastcheck" data-i18n="nav.fastcheck"><i class="fa-solid fa-circle-check"></i> Escáner DNS</button>
+                <button class="tab-btn" data-tab="androidapp" data-i18n="nav.androidapp"><i class="fa-solid fa-mobile-screen-button"></i> App Android</button>
+                <button class="tab-btn" data-tab="termuxcli" data-i18n="nav.termuxcli"><i class="fa-solid fa-terminal"></i> Termux CLI</button>
+                <button class="tab-btn" data-tab="about" data-i18n="nav.about"><i class="fa-solid fa-user-gear"></i> Nosotros</button>
+            </nav>
+
+            <div class="header-actions">
+                <!-- Selector de Idioma redondeado -->
+                <div class="lang-selector-container">
+                    <button class="lang-selector-btn" id="lang-btn">
+                        <i class="fa-solid fa-globe"></i> <span id="current-lang-label">Español</span> <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown">
+                        <button class="lang-option active" data-lang="es">Español</button>
+                        <button class="lang-option" data-lang="en">English</button>
+                    </div>
+                </div>
+                <a href="https://github.com/NeoTurcios/liberdom" target="_blank" class="github-link">
+                    <i class="fa-brands fa-github"></i> <span data-i18n="nav.github">Código</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+
+            <!-- PESTAÑA 1: GENERADOR IA AUTÓNOMO (LOCAL AGENT) -->
+            <section id="tab-generator" class="tab-panel active">
+                <div class="hero-section">
+                    <h2 class="hero-title" data-i18n="gen.title">Generador de Dominios Inteligente y Autónomo</h2>
+                    <p class="hero-subtitle" data-i18n="gen.subtitle">Crea ideas corporativas y creativas que se analizan en milisegundos con nuestro Agente IA local 100% libre de APIs externas.</p>
+                </div>
+
+                <div class="generator-layout">
+                    <!-- Configuración del Generador -->
+                    <div class="glass-card generator-config">
+                        <h3 class="panel-subtitle" data-i18n="gen.config_title"><i class="fa-solid fa-sliders"></i> Ajustes de Generación</h3>
+                        
+                        <div class="form-group">
+                            <label for="gen-keyword" data-i18n="gen.label_keyword">Palabra Clave o Idea Inicial:</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lightbulb input-icon"></i>
+                                <input type="text" id="gen-keyword" placeholder="Ej: neo, galaxy, cloud..." required autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gen-style" data-i18n="gen.label_style">Estilo de Marca:</label>
+                            <select id="gen-style" class="setting-select">
+                                <option value="ai" selected data-i18n="gen.style_ai">💡 Creativo & Inteligencia Artificial</option>
+                                <option value="corp" data-i18n="gen.style_corp">🏢 Corporativo & Elegante (Galaxy Style)</option>
+                                <option value="short" data-i18n="gen.style_short">⚡ Ultra-Moderno & Corto (Yi Style)</option>
+                                <option value="geek" data-i18n="gen.style_geek">🤖 Tecnológico & Geek</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gen-tld" data-i18n="gen.label_tld">Extensión (TLD):</label>
+                            <select id="gen-tld" class="setting-select">
+                                <option value="all" selected data-i18n="gen.tld_all">Todas las Extensiones Modernas</option>
+                                <option value="ai">.ai (Inteligencia Artificial)</option>
+                                <option value="io">.io (Tecnología/Startups)</option>
+                                <option value="com">.com (Corporativo Global)</option>
+                                <option value="net">.net (Infraestructura)</option>
+                                <option value="co">.co (Comunidades/Moderno)</option>
+                            </select>
+                        </div>
+
+                        <button id="btn-generate" class="glow-button purple">
+                            <span>🤖 Generar con IA Local</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                    </div>
+
+                    <!-- Panel de Resultados con Agente -->
+                    <div class="generator-results">
+                        <div class="results-header-box">
+                            <h3 class="panel-subtitle" data-i18n="gen.ideas_title"><i class="fa-solid fa-robot"></i> Recomendaciones de la IA</h3>
+                            <div class="memory-indicator" id="memory-counter-badge">
+                                <i class="fa-solid fa-memory"></i> <span data-i18n="gen.memory">Memoria Local</span>: <strong id="saved-count">0</strong>/10
+                            </div>
+                        </div>
+
+                        <div id="generator-ideas-grid" class="ideas-grid">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-brain"></i>
+                                <p data-i18n="gen.empty_text">Ingresa una palabra clave a la izquierda y presiona Generar para despertar al Agente Autónomo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Dominios Guardados (Memoria) -->
+                <div class="saved-domains-section glass-card">
+                    <div class="saved-header">
+                        <h3 class="panel-subtitle"><i class="fa-solid fa-bookmark"></i> <span data-i18n="gen.saved_title">Biblioteca de Favoritos Guardados</span> (<strong id="saved-count-2">0</strong>/10)</h3>
+                        <button id="btn-clear-saved" class="clear-btn disabled" disabled><i class="fa-solid fa-trash-can"></i> <span data-i18n="gen.clear_btn">Limpiar Todo</span></button>
+                    </div>
+                    <div id="saved-domains-list" class="saved-list">
+                        <div class="empty-saved-state">
+                            <p data-i18n="gen.empty_saved">No tienes dominios guardados en la memoria persistente de tu navegador. Guarda tus preferidos desde la lista de recomendaciones.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PESTAÑA 2: ESCÁNER RÁPIDO DNS CLIENT-SIDE (PROCESAMIENTO RÁPIDO) -->
+            <section id="tab-fastcheck" class="tab-panel">
+                <div class="hero-section">
+                    <h2 class="hero-title" data-i18n="fast.title">Escáner Masivo DNS en Paralelo</h2>
+                    <p class="hero-subtitle" data-i18n="fast.subtitle">Pega una lista de palabras o dominios. Consultamos en paralelo a través de DNS-over-HTTPS (DoH) sin límites de velocidad.</p>
+                </div>
+
+                <div class="bulk-container glass-card">
+                    <div class="bulk-form-group">
+                        <label for="bulk-textarea" class="form-label">
+                            <i class="fa-solid fa-paste"></i> <span data-i18n="fast.label">Pega tus dominios o palabras clave:</span>
+                        </label>
+                        <textarea id="bulk-textarea" placeholder="google.com&#10;github.com, neopunto.com&#10;misitiolibrequeinvente.net&#10;# Puedes separar por comas o saltos de línea..."></textarea>
+                    </div>
+
+                    <div class="bulk-settings">
+                        <div class="setting-item">
+                            <label for="scan-dns-provider" class="setting-label" data-i18n="fast.provider">Servidor DNS Seguro:</label>
+                            <select id="scan-dns-provider" class="setting-select">
+                                <option value="cloudflare" selected>Cloudflare Secure DNS (Recomendado)</option>
+                                <option value="google">Google Public DNS</option>
+                            </select>
+                        </div>
+                        <button id="start-bulk-btn" class="glow-button green">
+                            <i class="fa-solid fa-play"></i> <span data-i18n="fast.start_btn">Iniciar escaneo en paralelo</span>
+                        </button>
+                    </div>
+
+                    <!-- Progreso -->
+                    <div id="bulk-progress-panel" class="progress-panel">
+                        <div class="progress-info">
+                            <span id="progress-text" data-i18n="fast.progress_idle">Preparado para escanear...</span>
+                            <span id="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="progress-stats">
+                            <span class="stat-badge stat-available" id="stat-avail-badge"><i class="fa-solid fa-circle-check"></i> <span data-i18n="fast.stat_avail">DNS Disponible</span>: <strong id="stat-avail-count">0</strong></span>
+                            <span class="stat-badge stat-taken" id="stat-taken-badge"><i class="fa-solid fa-circle-xmark"></i> <span data-i18n="fast.stat_taken">DNS Ocupado</span>: <strong id="stat-taken-count">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados del escaneo masivo -->
+                <div class="bulk-results-section">
+                    <div class="results-header">
+                        <h3 data-i18n="fast.results_title"><i class="fa-solid fa-list-check"></i> Resultados en tiempo real:</h3>
+                        <div class="action-buttons-group">
+                            <button id="download-results-btn" class="download-btn disabled" disabled>
+                                <i class="fa-solid fa-file-lines"></i> <span data-i18n="fast.download_txt">Reporte TXT</span>
+                            </button>
+                            <button id="download-pdf-btn" class="download-btn pdf-btn disabled" disabled>
+                                <i class="fa-solid fa-file-pdf"></i> <span data-i18n="fast.download_pdf">Reporte PDF</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="bulk-results-grid" class="results-grid">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-server"></i>
+                            <p data-i18n="fast.empty_text">Ingresa tu lista arriba y ejecuta el escaneo para ver los resultados.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PESTAÑA 3: DETALLES DE LA APP ANDROID NATIVA -->
+            <section id="tab-androidapp" class="tab-panel">
+                <div class="hero-section">
+                    <h2 class="hero-title" data-i18n="app.title">OpenFind App - Versión Android Nativa</h2>
+                    <p class="hero-subtitle" data-i18n="app.subtitle">Lleva todo el poder de los agentes autónomos de dominios directamente en tu teléfono inteligente.</p>
+                </div>
+
+                <div class="app-showcase-grid">
+                    <!-- Preview visual simulando la app -->
+                    <div class="glass-card phone-mockup">
+                        <div class="phone-header">
+                            <div class="phone-camera"></div>
+                            <div class="phone-dynamic-island">
+                                <span class="island-text"><i class="fa-solid fa-robot"></i> OpenFind AI</span>
+                            </div>
+                        </div>
+                        
+                        <div class="phone-screen">
+                            <div class="screen-header">
+                                <img src="logo.webp" class="screen-logo" alt="Logo">
+                                <div class="screen-brand">
+                                    <h3>OpenFind AI</h3>
+                                    <span>hola@neopunto.com</span>
+                                </div>
+                                <div class="screen-lang-flag">
+                                    <div class="flag-container-square">
+                                        <i class="fa-solid fa-globe"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="screen-body">
+                                <div class="mock-agent-card">
+                                    <div class="agent-avatar"><i class="fa-solid fa-robot"></i></div>
+                                    <div class="agent-info">
+                                        <h4>Agente Evaluador IA</h4>
+                                        <p>Calificación del dominio en base a pronunciación, memorabilidad y viabilidad comercial.</p>
+                                    </div>
+                                </div>
+
+                                <div class="mock-domain-card">
+                                    <div class="mock-domain-top">
+                                        <strong>neoopenfind.ai</strong>
+                                        <span class="mock-badge-avail">Disponible</span>
+                                    </div>
+                                    <div class="mock-domain-agent-rec">
+                                        <i class="fa-solid fa-shield-halved"></i> 🤖 Yo te recomiendo esta (Score: 9.3/10)
+                                    </div>
+                                </div>
+
+                                <div class="mock-storage-bar">
+                                    <div class="storage-text">
+                                        <span>Biblioteca de Favoritos</span>
+                                        <strong>10 / 10 elementos</strong>
+                                    </div>
+                                    <div class="storage-progress"><div class="fill" style="width: 100%"></div></div>
+                                </div>
+
+                                <div class="mock-bottom-nav">
+                                    <div class="nav-item active"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Buscar</span></div>
+                                    <div class="nav-item"><i class="fa-solid fa-history"></i><span>Guardados</span></div>
+                                    <div class="nav-item"><i class="fa-solid fa-info-circle"></i><span>Acerca de</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características de la App -->
+                    <div class="app-details-info">
+                        <div class="glass-card feature-detail-card">
+                            <h3 data-i18n="app.tech_title"><i class="fa-solid fa-code"></i> Arquitectura Android 16 Premium</h3>
+                            <p data-i18n="app.tech_desc">Desarrollada utilizando Kotlin Moderno en su totalidad, estructurada bajo un namespace limpio en solo dos niveles de carpetas (<code>openfind.ai</code>). Libre de código Java obsoleto.</p>
+                        </div>
+
+                        <div class="glass-card feature-detail-card">
+                            <h3 data-i18n="app.icons_title"><i class="fa-solid fa-icons"></i> Sistema de Iconos Vectoriales Puros</h3>
+                            <p data-i18n="app.icons_desc">Cumpliendo estrictamente las directrices estéticas de las tiendas modernas, se reemplazan todos los emojis vulgares en la interfaz por iconos vectoriales XML estilizados (Outlines y Filled) para lograr una estética profesional.</p>
+                        </div>
+
+                        <div class="glass-card feature-detail-card">
+                            <h3 data-i18n="app.limit_title"><i class="fa-solid fa-database"></i> Gestión de Almacenamiento Inteligente</h3>
+                            <p data-i18n="app.limit_desc">Para mantener la base de datos local ligera y libre de registros eternos o basura, el sistema limita el historial y los favoritos a un máximo de 10 elementos. Al llegar al límite, un diálogo proactivo solicita decidir entre el vaciado manual de la memoria o la autolimpieza inteligente periódica.</p>
+                        </div>
+
+                        <div class="action-box">
+                            <a href="https://github.com/NeoTurcios/liberdom/releases/latest" target="_blank" class="glow-button purple big-btn">
+                                <i class="fa-solid fa-circle-down"></i> <span data-i18n="app.download_btn">Descargar APK Compilada</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PESTAÑA 4: GUÍA CLI / TERMUX -->
+            <section id="tab-termuxcli" class="tab-panel">
+                <div class="hero-section">
+                    <h2 class="hero-title" data-i18n="cli.title">OpenFind en tu terminal con Termux</h2>
+                    <p class="hero-subtitle" data-i18n="cli.subtitle">Cómo instalar y ejecutar la versión CLI rápida optimizada para celulares y servidores Linux.</p>
+                </div>
+
+                <div class="cli-guide-grid">
+                    <!-- Tarjeta 1: Comando de Instalación -->
+                    <div class="glass-card cli-step-card">
+                        <div class="card-header">
+                            <span class="step-num">1</span>
+                            <h3 data-i18n="cli.step1_title">Instalación en un solo comando</h3>
+                        </div>
+                        <p data-i18n="cli.step1_desc">Abre Termux en tu Android, copia la línea de abajo y pégala para clonar, configurar e instalar el binario automáticamente:</p>
+                        <div class="code-box">
+                            <code id="code-install">pkg install git python -y && git clone https://github.com/NeoTurcios/liberdom.git && cd liberdom && chmod +x install.sh && ./install.sh</code>
+                            <button class="copy-code-btn" data-target="code-install">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 2: Lanzamiento -->
+                    <div class="glass-card cli-step-card">
+                        <div class="card-header">
+                            <span class="step-num">2</span>
+                            <h3 data-i18n="cli.step2_title">Cómo ejecutar la aplicación CLI</h3>
+                        </div>
+                        <p data-i18n="cli.step2_desc">Una vez completado el instalador, puedes arrancar la herramienta en cualquier momento desde cualquier carpeta escribiendo:</p>
+                        <div class="code-box">
+                            <code id="code-run">openfind</code>
+                            <button class="copy-code-btn" data-target="code-run">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                        <p class="helper-text" data-i18n="cli.step2_helper"><i class="fa-solid fa-circle-info"></i> Se creará un alias directo en los binarios de tu terminal.</p>
+                    </div>
+
+                    <!-- Tarjeta 3: Características de la consola -->
+                    <div class="glass-card cli-step-card span-two-cols">
+                        <h3 data-i18n="cli.step3_title"><i class="fa-solid fa-bolt"></i> Beneficios de usar la versión de Consola</h3>
+                        <ul class="features-list-web">
+                            <li data-i18n="cli.step3_item1"><i class="fa-solid fa-bolt"></i> **Rendimiento instantáneo:** Consultas a nivel de red directa a través de sockets TCP recursivos.</li>
+                            <li data-i18n="cli.step3_item2"><i class="fa-solid fa-file-import"></i> **Importación local:** Carga y analiza archivos físicos `.txt` en bloque desde tu almacenamiento interno.</li>
+                            <li data-i18n="cli.step3_item3"><i class="fa-solid fa-shield-halved"></i> **Cero telemetría:** Todo opera en tu dispositivo local, sin llamadas de red a terceros ni cuotas de APIs de pago.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PESTAÑA 5: ACERCA DE Y PROYECTOS -->
+            <section id="tab-about" class="tab-panel">
+                <div class="hero-section">
+                    <h2 class="hero-title" data-i18n="about.title">Detalles del Proyecto y Nosotros</h2>
+                    <p class="hero-subtitle" data-i18n="about.subtitle">Conoce los principios, políticas y enlaces clave que rigen a OpenFind AI.</p>
+                </div>
+
+                <div class="about-container">
+                    <div class="about-grid">
+                        
+                        <!-- Tarjeta de Contacto / Creador -->
+                        <div class="glass-card credentials-card">
+                            <div class="creator-avatar"><i class="fa-solid fa-address-card"></i></div>
+                            <h3 data-i18n="about.creator_title">Desarrollador Principal</h3>
+                            <p class="creator-name">NeoTurcios</p>
+                            
+                            <div class="creator-details">
+                                <div class="detail-item">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    <span>hola@neopunto.com</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fa-solid fa-globe"></i>
+                                    <a href="https://neopunto.com" target="_blank">neopunto.com</a>
+                                </div>
+                            </div>
+
+                            <p class="creator-bio" data-i18n="about.bio">Creador de herramientas autónomas, optimizadas para el rendimiento móvil y de red local. Desarrollando soluciones libres de APIs comerciales invasivas.</p>
+                        </div>
+
+                        <!-- Licencia y Atribución -->
+                        <div class="glass-card license-card">
+                            <h3 data-i18n="about.license_title"><i class="fa-solid fa-file-signature"></i> Licencia de Uso No Comercial</h3>
+                            <p data-i18n="about.license_p1">Este software está distribuido bajo los términos de una licencia personalizada de <strong>Uso Personal No Comercial con Atribución Obligatoria</strong>.</p>
+                            
+                            <ul class="license-list">
+                                <li data-i18n="about.license_item1"><i class="fa-solid fa-circle-xmark" style="color: var(--neon-red)"></i> Prohibido monetizar: Queda estrictamente prohibido vender, alquilar, sublicenciar o colocar publicidad comercial en este software o sus derivados.</li>
+                                <li data-i18n="about.license_item2"><i class="fa-solid fa-circle-check" style="color: var(--neon-green)"></i> Atribución obligatoria: Al redistribuir, se debe mantener de manera visible en la interfaz el enlace al repositorio original del motor.</li>
+                            </ul>
+
+                            <a href="https://github.com/NeoTurcios/liberdom/blob/main/LICENSE" target="_blank" class="outline-btn" data-i18n="about.license_btn">Leer Licencia Completa</a>
+                        </div>
+                    </div>
+
+                    <!-- Enlaces a Mis Proyectos (NeoTurcios Projects) -->
+                    <div class="projects-section glass-card">
+                        <h3 class="panel-subtitle" data-i18n="about.projects_title"><i class="fa-solid fa-folder-open"></i> Más Proyectos de NeoTurcios</h3>
+                        <div class="projects-grid">
+                            <a href="https://github.com/NeoTurcios?tab=repositories" target="_blank" class="project-item-card">
+                                <div class="proj-icon"><i class="fa-solid fa-cubes"></i></div>
+                                <div class="proj-desc">
+                                    <h4>NeoTurcios Repositories</h4>
+                                    <p data-i18n="about.proj1_desc">Explora la lista completa de utilidades de consola y scripts en GitHub.</p>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square arrow"></i>
+                            </a>
+
+                            <a href="https://neopunto.com" target="_blank" class="project-item-card">
+                                <div class="proj-icon"><i class="fa-solid fa-rocket"></i></div>
+                                <div class="proj-desc">
+                                    <h4>Neopunto</h4>
+                                    <p data-i18n="about.proj2_desc">Plataforma oficial y núcleo del ecosistema digital de desarrollo.</p>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square arrow"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Enlace a Política de Privacidad -->
+                    <div class="privacy-link-box">
+                        <a href="privacy_policy.md" target="_blank" class="privacy-btn"><i class="fa-solid fa-user-shield"></i> <span data-i18n="about.privacy_btn">Política de Privacidad de la Play Console</span></a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Pie de página -->
+        <footer class="app-footer">
+            <p data-i18n="footer.text">Diseñado con amor y código abierto por <strong>NeoTurcios</strong> | Licencia No Comercial © 2026</p>
+        </footer>
+
+    </div>
+
+    <!-- DIÁLOGO EMULADO DE LÍMITE DE ALMACENAMIENTO (Option A / Option B / Cancel) -->
+    <div id="storage-modal-overlay" class="modal-overlay">
+        <div class="glass-card storage-modal-card">
+            <div class="modal-glow-bg"></div>
+            
+            <div class="modal-header-area">
+                <div class="modal-icon-container"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3 id="modal-title" data-i18n="modal.title">Límite de memoria alcanzado</h3>
+            </div>
+            
+            <div class="modal-body-area">
+                <p id="modal-description" data-i18n="modal.desc">Veo que la lista de favoritos y guardados está llena (Límite: 10 elementos). ¿Qué deseas hacer para continuar?</p>
+                
+                <div class="modal-options-list">
+                    <!-- Opción A -->
+                    <div class="modal-option-row" id="modal-option-a">
+                        <div class="option-radio">A</div>
+                        <div class="option-info">
+                            <h4 data-i18n="modal.opt_a_title">Opción A: Vaciar toda la lista</h4>
+                            <p data-i18n="modal.opt_a_desc">Borra por completo todos los elementos guardados para empezar de cero con la memoria limpia.</p>
+                        </div>
+                    </div>
+
+                    <!-- Opción B -->
+                    <div class="modal-option-row" id="modal-option-b">
+                        <div class="option-radio">B</div>
+                        <div class="option-info">
+                            <h4 data-i18n="modal.opt_b_title">Opción B: Autolimpieza Automática</h4>
+                            <p data-i18n="modal.opt_b_desc">Elimina automáticamente las recomendaciones más antiguas al agregar nuevas para mantener el límite en 10.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer-area">
+                <button id="modal-btn-confirm" class="glow-button purple disabled" disabled data-i18n="modal.confirm_btn">Confirmar Acción</button>
+                <button id="modal-btn-cancel" class="outline-btn" data-i18n="modal.cancel_btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <!-- jsPDF para los reportes masivos client-side -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
