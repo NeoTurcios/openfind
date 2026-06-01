@@ -7,14 +7,10 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">#8b5cf6</item>
         <item name="colorOnSecondary">#ffffff</item>
-        <!-- Edge-to-edge: transparent system bars for Android 15/16+ -->
+        <!-- Edge-to-edge: transparent system bars for SDK 35/36 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowBackground">#070b13</item>
-        <!-- Disable navigation bar contrast enforcement for full edge-to-edge -->
-        <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:enforceStatusBarContrast">false</item>
     </style>
 </resources>

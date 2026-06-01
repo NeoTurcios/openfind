@@ -1,0 +1,14 @@
+# Gradle build cache and outputs
+.gradle/
+build/
+app/build/
+
+# Local SDK configuration
+local.properties
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
