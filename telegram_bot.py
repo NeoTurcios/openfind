@@ -10,13 +10,13 @@ import json
 import urllib.request
 import urllib.parse
 
-# Importar motor central de LiberDom
+# Importar motor central de OpenFind
 try:
-    from liberdom import chequear_dominio
+    from openfind import chequear_dominio
 except ImportError:
     # Si por alguna razón se ejecuta fuera de la ruta, agregar el path local
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from liberdom import chequear_dominio
+    from openfind import chequear_dominio
 
 # Colores ANSI para Consola
 VERDE = "\033[1;92m"
@@ -74,7 +74,7 @@ def guardar_usuarios():
 # ==========================================
 BOT_TEXTS = {
     "welcome": (
-        "🔍 <b>Welcome to LiberDom Bot!</b>\n\n"
+        "🔍 <b>Welcome to OpenFind Bot!</b>\n\n"
         "I am the autonomous, ultra-fast hybrid domain availability detector, optimized to help you find free domains without limits or premium third-party APIs.\n\n"
         "🌐 <b>How to use me?</b>\n"
         "• Send any domain directly (e.g. <code>myweb.com</code>).\n"
@@ -82,7 +82,7 @@ BOT_TEXTS = {
         "• For detailed help, type /help."
     ),
     "help": (
-        "📚 <b>Help Guide - LiberDom Bot</b>\n\n"
+        "📚 <b>Help Guide - OpenFind Bot</b>\n\n"
         "Available commands:\n"
         "• /start - Start message.\n"
         "• /help - Shows this instruction manual.\n"
@@ -99,7 +99,7 @@ BOT_TEXTS = {
     "card_registrar": "Registrar",
     "card_created": "Created",
     "card_method": "Method",
-    "card_footer": "Verified with LiberDom | GitHub: github.com/NeoTurcios/liberdom"
+    "card_footer": "Verified with OpenFind AI | GitHub: github.com/NeoTurcios/liberdom"
 }
 
 # ==========================================

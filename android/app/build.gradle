@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.neoturcios.liberdom'
+    namespace 'openfind.ai'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.neoturcios.liberdom"
+        applicationId "openfind.ai"
         minSdk 26
         targetSdk 36
         versionCode 1

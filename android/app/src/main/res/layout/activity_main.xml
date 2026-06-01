@@ -109,12 +109,23 @@
                 android:clickable="true"
                 android:focusable="true">
                 
-                <ImageView
-                    android:id="@+id/imgLangFlag"
+                <androidx.cardview.widget.CardView
                     android:layout_width="18dp"
-                    android:layout_height="13dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/flag_us" />
+                    android:layout_height="18dp"
+                    app:cardCornerRadius="5dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardPreventCornerOverlap="false"
+                    app:cardUseCompatPadding="false">
+                    
+                    <ImageView
+                        android:id="@+id/imgLangFlag"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/flag_us" />
+                </androidx.cardview.widget.CardView>
                     
                 <TextView
                     android:id="@+id/txtLangCode"

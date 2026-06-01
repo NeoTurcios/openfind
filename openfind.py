@@ -26,7 +26,7 @@ CURSIVA = "\033[3m"
 # ==========================================
 # CONFIGURACIÓN PERSISTENTE DE IDIOMA (I18N)
 # ==========================================
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".liberdom_config.json")
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".openfind_config.json")
 CONFIG = {"lang": "es"}
 
 def cargar_configuracion():
@@ -60,7 +60,7 @@ TEXTS = {
         "menu_opcion_6": "👋 Salir del script",
         "ingresar_opcion": "👉 Selecciona una opción (1-6): ",
         "opcion_incorrecta": "❌ Opción incorrecta. Inténtalo de nuevo.",
-        "salir_mensaje": "👋 ¡Gracias por usar LiberDom! Diseñado para optimizar tus proyectos.\n¡Haz tu repositorio público y compártelo con el mundo! 🚀",
+        "salir_mensaje": "👋 ¡Gracias por usar OpenFind! Diseñado para optimizar tus proyectos.\n¡Haz tu repositorio público y compártelo con el mundo! 🚀",
         "interrumpido": "\n\n⚠ Script interrumpido por el usuario. ¡Adiós!\n",
         
         # Consulta Individual
@@ -136,7 +136,8 @@ TEXTS = {
         "gen_style_1": "1. Palabra + sufijo (Ej: {palabra}hub, {palabra}app, {palabra}lab)",
         "gen_style_2": "2. Prefijo + palabra (Ej: super{palabra}, go{palabra}, check{palabra})",
         "gen_style_3": "3. Palabra exacta con múltiples TLDs (Ej: {palabra}.com, {palabra}.net)",
-        "gen_select_style": "👉 Elige una opción (1-3): ",
+        "gen_style_4": "4. Estilo moderno de IA (Ej: {palabra}ai.com, my{palabra}ai.net)",
+        "gen_select_style": "👉 Elige una opción (1-4): ",
         "gen_ready": "✔ Se generaron {total} ideas de dominios para comprobar.",
         "gen_start_check": "¿Quieres empezar a verificar cuáles están libres ahora mismo? (s/n): ",
         "gen_header_dom": "DOMINIO GENERADO",
@@ -174,7 +175,7 @@ modificaciones del diseño, logotipo, nombre, paquete y funciones para su
 redistribución, siempre y cuando:
 • {CURSIVA}Quede estrictamente prohibida la venta o uso comercial de este código.{FIN}
 • {CURSIVA}Se mantenga de forma visible el enlace al repositorio original de GitHub:{FIN}
-  https://github.com/NeoTurcios/liberdom.git
+  https://github.com/NeoTurcios/liberdom.git (Basado en el motor LiberDom)
 """
     },
     "en": {
@@ -188,7 +189,7 @@ redistribución, siempre y cuando:
         "menu_opcion_6": "👋 Exit the script",
         "ingresar_opcion": "👉 Select an option (1-6): ",
         "opcion_incorrecta": "❌ Incorrect option. Try again.",
-        "salir_mensaje": "👋 Thank you for using LiberDom! Designed to optimize your projects.\nMake your repository public and share it with the world! 🚀",
+        "salir_mensaje": "👋 Thank you for using OpenFind! Designed to optimize your projects.\nMake your repository public and share it with the world! 🚀",
         "interrumpido": "\n\n⚠ Script interrupted by the user. Goodbye!\n",
         
         # Individual Search
@@ -264,7 +265,8 @@ redistribución, siempre y cuando:
         "gen_style_1": "1. Keyword + suffix (e.g. {palabra}hub, {palabra}app, {palabra}lab)",
         "gen_style_2": "2. Prefix + keyword (e.g. super{palabra}, go{palabra}, check{palabra})",
         "gen_style_3": "3. Exact keyword with multiple TLDs (e.g. {palabra}.com, {palabra}.net)",
-        "gen_select_style": "👉 Choose an option (1-3): ",
+        "gen_style_4": "4. Modern AI style (e.g. {palabra}ai.com, my{palabra}ai.net)",
+        "gen_select_style": "👉 Choose an option (1-4): ",
         "gen_ready": "✔ Generated {total} domain ideas to check.",
         "gen_start_check": "Do you want to start checking which ones are free right now? (y/n): ",
         "gen_header_dom": "GENERATED DOMAIN",
@@ -302,7 +304,7 @@ logo, name, package, visual theme, and features are permitted for redistribution
 as long as:
 • {CURSIVA}Selling, reselling, or commercial use of this code is strictly prohibited.{FIN}
 • {CURSIVA}You prominently display the link to the original GitHub repository:{FIN}
-  https://github.com/NeoTurcios/liberdom.git
+  https://github.com/NeoTurcios/liberdom.git (Based on the LiberDom engine)
 """
     }
 }
@@ -319,14 +321,14 @@ def mostrar_banner():
     right_padding = " " * (38 - len(sub) - len(padding))
     banner = f"""
 {CIAN}╔═══════════════════════════════════════════════════════════════╗
-║  {VERDE}██╗     ██╗██████╗ ███████╗██████╗ ██████╗  ██████╗ ███╗   ███╗{CIAN}  ║
-║  {VERDE}██║     ██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔═══██╗████╗ ████║{CIAN}  ║
-║  {VERDE}██║     ██║██████╔╝█████╗  ██████╔╝██║  ██║██║   ██║██╔████╔██║{CIAN}  ║
-║  {VERDE}██║     ██║██╔══██╗██╔══╝  ██╔══██╗██║  ██║██║   ██║██║╚██╔╝██║{CIAN}  ║
-║  {VERDE}███████╗██║██████╔╝███████╗██║  ██║██████╔╝╚██████╔╝██║ ╚═╝ ██║{CIAN}  ║
-║  {VERDE}╚══════╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝{CIAN}  ║
+║  {VERDE} ██████╗ ██████╗ ███████╗███╗   ██╗███████╗██╗███╗   ██╗██████╗ {CIAN} ║
+║  {VERDE}██╔═══██╗██╔══██╗██╔════╝████╗  ██║██╔════╝██║████╗  ██║██╔══██╗{CIAN} ║
+║  {VERDE}██║   ██║██████╔╝█████╗  ██╔██╗ ██║█████╗  ██║██╔██╗ ██║██║  ██║{CIAN} ║
+║  {VERDE}██║   ██║██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══╝  ██║██║╚██╗██║██║  ██║{CIAN} ║
+║  {VERDE}╚██████╔╝██║     ███████╗██║ ╚████║██║     ██║██║ ╚████║██████╔╝{CIAN} ║
+║  {VERDE} ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═════╝ {CIAN} ║
 ╠═══════════════════════════════════════════════════════════════╣
-║         {BLANCO}🔍    LiberDom - Detector de Dominios Libre    🔍         {CIAN}║
+║         {BLANCO}🔍    OpenFind AI - Detector de Dominios Libre    🔍      {CIAN}║
 ║               {AMARILLO}{padding}{sub}{right_padding}{CIAN}            ║
 ╚═══════════════════════════════════════════════════════════════╝{FIN}"""
     print(banner)
@@ -652,12 +654,12 @@ def consulta_lote():
             try:
                 linea = input().strip()
                 if linea.upper() == 'FIN':
-                    break
+                     break
                 if linea == '' and len(lineas_pegadas) > 0:
-                    break
+                     break
                 if linea == '' and len(lineas_pegadas) == 0:
-                    print(f"{ROJO}{t['paste_warn']}{FIN}")
-                    continue
+                     print(f"{ROJO}{t['paste_warn']}{FIN}")
+                     continue
                 lineas_pegadas.append(linea)
             except (KeyboardInterrupt, EOFError):
                 break
@@ -665,7 +667,7 @@ def consulta_lote():
         lineas = lineas_pegadas
         
     else:
-        print(f"\n{ROJO}{t['invalid_option']}{FIN}")
+        print(f"\n{ROJO}{t['opcion_incorrecta']}{FIN}")
         time.sleep(1)
         return
 
@@ -841,6 +843,7 @@ def generador_dominios():
     print(t["gen_style_1"].format(palabra=palabra))
     print(t["gen_style_2"].format(palabra=palabra))
     print(t["gen_style_3"].format(palabra=palabra))
+    print(t["gen_style_4"].format(palabra=palabra))
     
     estilo = input(f"{BLANCO}{t['gen_select_style']}{FIN}").strip()
     
@@ -856,6 +859,13 @@ def generador_dominios():
         for pref in prefijos[:6]:
             for tld in tlds:
                 ideas.append(f"{pref}{palabra}.{tld}")
+    elif estilo == "3":
+        for tld in tlds:
+            ideas.append(f"{palabra}.{tld}")
+    elif estilo == "4":
+        for tld in tlds:
+            ideas.append(f"{palabra}ai.{tld}")
+            ideas.append(f"my{palabra}ai.{tld}")
     else:
         for tld in tlds:
             ideas.append(f"{palabra}.{tld}")

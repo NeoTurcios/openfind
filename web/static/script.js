@@ -39,7 +39,7 @@ const translations = {
         "bulk.download_pdf": '<i class="fa-solid fa-file-pdf"></i> Reporte PDF',
         "bulk.empty_state": '<i class="fa-solid fa-server"></i><p>Pega tus dominios arriba y haz clic en iniciar para ver las tarjetas aquí.</p>',
         
-        "hero.cli_title": "LiberDom en tu bolsillo con Termux",
+        "hero.cli_title": "OpenFind en tu bolsillo con Termux",
         "hero.cli_subtitle": "Cómo instalar y correr la versión CLI rápida optimizada para celulares Android.",
         
         "cli.step1_title": "Instalación en un solo comando",
@@ -94,12 +94,12 @@ const translations = {
         "pdf.status_unknown": "DESCONOCIDO",
         "pdf.page_label": "Página {page}",
         
-        "txt.header": "====================================================\n      REPORTE DE DISPONIBILIDAD - LIBERDOM 🔎      \n====================================================\n",
+        "txt.header": "====================================================\n      REPORTE DE DISPONIBILIDAD - OPENFIND 🔎      \n====================================================\n",
         "txt.date": "Fecha del Escaneo: {date}\n",
         "txt.total": "Total de dominios analizados: {total}\n\n",
         "txt.detailed": "RESULTADOS DETALLADOS:\n----------------------------------------------------\n",
         "txt.row": "{num}. DOMINIO: {domain} | ESTADO: {status} | MÈTODO: {method} ({detail})\n",
-        "txt.footer": "\n====================================================\nDesarrollado por NeoTurcios - LiberDom CLI & Web 🚀\n====================================================\n"
+        "txt.footer": "\n====================================================\nDesarrollado por NeoTurcios - OpenFind CLI & Web 🚀\n====================================================\n"
     },
     en: {
         "nav.single": '<i class="fa-solid fa-search"></i> Individual',
@@ -134,7 +134,7 @@ const translations = {
         "bulk.download_pdf": '<i class="fa-solid fa-file-pdf"></i> PDF Report',
         "bulk.empty_state": '<i class="fa-solid fa-server"></i><p>Paste your domains above and click start to see the cards here.</p>',
         
-        "hero.cli_title": "LiberDom in your pocket with Termux",
+        "hero.cli_title": "OpenFind in your pocket with Termux",
         "hero.cli_subtitle": "How to install and run the fast CLI version optimized for Android phones.",
         
         "cli.step1_title": "One-command installation",
@@ -189,16 +189,16 @@ const translations = {
         "pdf.status_unknown": "UNKNOWN",
         "pdf.page_label": "Page {page}",
         
-        "txt.header": "====================================================\n      AVAILABILITY REPORT - LIBERDOM 🔎      \n====================================================\n",
+        "txt.header": "====================================================\n      AVAILABILITY REPORT - OPENFIND 🔎      \n====================================================\n",
         "txt.date": "Scan Date: {date}\n",
         "txt.total": "Total domains analyzed: {total}\n\n",
         "txt.detailed": "DETAILED RESULTS:\n----------------------------------------------------\n",
         "txt.row": "{num}. DOMAIN: {domain} | STATUS: {status} | METHOD: {method} ({detail})\n",
-        "txt.footer": "\n====================================================\nDeveloped by NeoTurcios - LiberDom CLI & Web 🚀\n====================================================\n"
+        "txt.footer": "\n====================================================\nDeveloped by NeoTurcios - OpenFind CLI & Web 🚀\n====================================================\n"
     }
 };
 
-let currentLang = localStorage.getItem("liberdom_lang") || "es";
+let currentLang = localStorage.getItem("openfind_lang") || "es";
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarPestanas();
@@ -241,7 +241,7 @@ function inicializarSelectorIdioma() {
 
 function aplicarIdioma(lang) {
     currentLang = lang;
-    localStorage.setItem("liberdom_lang", lang);
+    localStorage.setItem("openfind_lang", lang);
 
     // Traducir todos los elementos con data-i18n
     document.querySelectorAll("[data-i18n]").forEach(elem => {
@@ -703,7 +703,7 @@ function descargarReporteTxt() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `reporte_liberdom_${Date.now()}.txt`;
+    link.download = `reporte_openfind_${Date.now()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -734,7 +734,7 @@ function descargarReportePdf() {
     doc.setTextColor(255, 255, 255);
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(20);
-    doc.text("LIBERDOM", margin + 20, y + 34);
+    doc.text("OPENFIND AI", margin + 20, y + 34);
     
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
@@ -895,5 +895,5 @@ function descargarReportePdf() {
     doc.setTextColor(...neutralGray);
     doc.text(translations[currentLang]["pdf.page_label"].replace("{page}", pageNum), width / 2 - 15, 805);
     
-    doc.save(`reporte_liberdom_${Date.now()}.pdf`);
+    doc.save(`reporte_openfind_${Date.now()}.pdf`);
 }

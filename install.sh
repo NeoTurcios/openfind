@@ -10,7 +10,7 @@ FIN="\033[0m"
 
 clear
 echo -e "${CIAN}╔═══════════════════════════════════════════════════════════╗"
-echo -e "║      🚀  INSTALADOR AUTOMÁTICO DE LIBERDOM EN TERMUX  🚀   ║"
+echo -e "║      🚀  INSTALADOR AUTOMÁTICO DE OPENFIND EN TERMUX  🚀   ║"
 echo -e "╚═══════════════════════════════════════════════════════════╝${FIN}"
 echo ""
 
@@ -22,14 +22,14 @@ echo -e "\n${AMARILLO}[+] 2. Instalando dependencias básicas (Python)...${FIN}"
 pkg install python dnsutils git -y
 
 echo -e "\n${AMARILLO}[+] 3. Configurando permisos del script...${FIN}"
-chmod +x liberdom.py
+chmod +x openfind.py
 
 # Crear un acceso directo/alias fácil de ejecutar en Termux
-echo -e "\n${AMARILLO}[+] 4. Creando acceso rápido (comando 'liberdom')...${FIN}"
+echo -e "\n${AMARILLO}[+] 4. Creando acceso rápido (comando 'openfind')...${FIN}"
 if [ -d "$PREFIX/bin" ]; then
-    cp liberdom.py $PREFIX/bin/liberdom
-    chmod +x $PREFIX/bin/liberdom
-    echo -e "${VERDE}✔ ¡Acceso rápido instalado! Ahora puedes escribir 'liberdom' desde cualquier carpeta para iniciar.${FIN}"
+    cp openfind.py $PREFIX/bin/openfind
+    chmod +x $PREFIX/bin/openfind
+    echo -e "${VERDE}✔ ¡Acceso rápido instalado! Ahora puedes escribir 'openfind' desde cualquier carpeta para iniciar.${FIN}"
 else
     echo -e "${AMARILLO}⚠ Entorno diferente a Termux estándar. Permisos del script actualizados en su carpeta local.${FIN}"
 fi
@@ -38,8 +38,8 @@ echo -e "\n${VERDE}================═══════════════
 echo -e "   ${BLANCO}¡INSTALACIÓN COMPLETADA CON ÉXITO! 🎉${FIN}"
 echo -e "${VERDE}================═══════════════════════════════════════════${FIN}"
 echo -e "${BLANCO}Para ejecutar el buscador ahora, usa:${FIN}"
-echo -e "  ${CIAN}./liberdom.py${FIN}"
+echo -e "  ${CIAN}./openfind.py${FIN}"
 echo ""
 echo -e "${BLANCO}O simplemente escribe el comando rápido desde cualquier ruta:${FIN}"
-echo -e "  ${CIAN}liberdom${FIN}"
+echo -e "  ${CIAN}openfind${FIN}"
 echo -e "${VERDE}================═══════════════════════════════════════════${FIN}\n"

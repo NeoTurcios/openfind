@@ -1,9 +1,10 @@
-package com.neoturcios.liberdom
+package openfind.ai
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -15,12 +16,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import org.json.JSONArray
@@ -162,19 +163,13 @@ class MainActivity : AppCompatActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        // Enable edge-to-edge display for Android 15/16+ (SDK 35/36)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContentView(R.layout.activity_main)
 
-        // Apply window insets for edge-to-edge: pad Dynamic Island for status bar
-        val rootLayout = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(android.R.id.content)
-
-        // Pad Dynamic Island (top) to account for status bar
-        val dynamicIslandCard = findViewById<View>(R.id.dynamicIsland)
-        ViewCompat.setOnApplyWindowInsetsListener(dynamicIslandCard) { v, windowInsets ->
+        // Pad Dynamic Island for status bar insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dynamicIsland)) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = insets.top + 8
@@ -182,9 +177,8 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
-        // Pad bottom navigation dock to account for navigation bar
-        val bottomDock = findViewById<View>(R.id.bottomNavigationDock)
-        ViewCompat.setOnApplyWindowInsetsListener(bottomDock) { v, windowInsets ->
+        // Pad bottom navigation dock for navigation bar insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bottomNavigationDock)) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = insets.bottom + 8
@@ -371,7 +365,7 @@ class MainActivity : AppCompatActivity() {
         btnActionCopy.setOnClickListener {
             lastCheckedResult?.let { res ->
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("LiberDom", res.domain.lowercase(Locale.getDefault()))
+                val clip = ClipData.newPlainText("OpenFind AI", res.domain.lowercase(Locale.getDefault()))
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(
                     this,
@@ -410,21 +404,21 @@ class MainActivity : AppCompatActivity() {
             ejecutarGeneracionNombres()
         }
 
-        // Panel 4: Library sub-tabs & cleaning
+        // Panel 4: Library sub-tabs & cleaning (Corrected Material3 background tint handling)
         btnTabSaved.setOnClickListener {
             libraryTabMode = "saved"
-            btnTabSaved.setBackgroundColor(Color.parseColor("#1C2436"))
+            btnTabSaved.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1C2436"))
             btnTabSaved.setTextColor(Color.WHITE)
-            btnTabHistory.setBackgroundColor(Color.TRANSPARENT)
+            btnTabHistory.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
             btnTabHistory.setTextColor(Color.GRAY)
             refreshLibraryPanel()
         }
 
         btnTabHistory.setOnClickListener {
             libraryTabMode = "history"
-            btnTabHistory.setBackgroundColor(Color.parseColor("#1C2436"))
+            btnTabHistory.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1C2436"))
             btnTabHistory.setTextColor(Color.WHITE)
-            btnTabSaved.setBackgroundColor(Color.TRANSPARENT)
+            btnTabSaved.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
             btnTabSaved.setTextColor(Color.GRAY)
             refreshLibraryPanel()
         }
@@ -440,8 +434,8 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(if (currentLang == "es") "Borrar todo" else "Clear All") { _, _ ->
-                    val prefKey = if (libraryTabMode == "saved") "liberdom_saved" else "liberdom_history"
-                    val sp = getSharedPreferences("liberdom_prefs", Context.MODE_PRIVATE)
+                    val prefKey = if (libraryTabMode == "saved") "openfind_saved" else "openfind_history"
+                    val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
                     sp.edit().putString(prefKey, "[]").apply()
                     refreshLibraryPanel()
                 }
@@ -459,7 +453,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Beautiful glass bottom bar active states
-        
         val colorActive = Color.parseColor("#00e676")
         val colorInactive = Color.parseColor("#6B7280")
 
@@ -493,6 +486,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun actualizarIdiomaInterfaz() {
+        // Dynamically translate Floating Bottom Dock Tabs
+        txtTabSearch.text = if (currentLang == "es") "Buscar" else "Search"
+        txtTabBulk.text = if (currentLang == "es") "Por lote" else "Bulk Check"
+        txtTabGenerator.text = if (currentLang == "es") "Generador" else "Generator"
+        txtTabSaved.text = if (currentLang == "es") "Biblioteca" else "Library"
+
         if (currentLang == "es") {
             imgLangFlag.setImageResource(R.drawable.flag_es)
             txtLangCode.text = "ES"
@@ -506,7 +505,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrador:"
             lblCreationDate.text = "Fecha de Creación:"
             lblMethod.text = "Método de Detección:"
-            txtFooter.text = "Diseñado con amor y código abierto por NeoTurcios\nGitHub: github.com/NeoTurcios/liberdom\nLicencia No Comercial © 2026"
+            txtFooter.text = "Diseñado con amor y código abierto\nBasado en LiberDom por NeoTurcios\nLicencia No Comercial © 2026"
 
             // Panel Bulk
             txtBulkTitle.text = "Búsqueda por Lote"
@@ -541,7 +540,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrar:"
             lblCreationDate.text = "Creation Date:"
             lblMethod.text = "Detection Method:"
-            txtFooter.text = "Designed with love and open source by NeoTurcios\nGitHub: github.com/NeoTurcios/liberdom\nNon-Commercial License © 2026"
+            txtFooter.text = "Designed with love and open source\nBased on LiberDom by NeoTurcios\nNon-Commercial License © 2026"
 
             // Panel Bulk
             txtBulkTitle.text = "Bulk Domain Check"
@@ -616,9 +615,11 @@ class MainActivity : AppCompatActivity() {
         
         showDynamicIslandLoader(true, domain)
 
+        // Avoid race condition / crash: capture currentLang on UI thread before background tasks
+        val lang = currentLang
         Thread {
             try {
-                val result = performSingleLookup(domain)
+                val result = performSingleLookup(domain, lang)
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     txtLoading.visibility = View.GONE
@@ -641,7 +642,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun performSingleLookup(domain: String): DomainResult {
+    private fun performSingleLookup(domain: String, lang: String): DomainResult {
         // 1. DNS Phase
         var ip: String? = null
         try {
@@ -655,11 +656,11 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "comprado",
-                detail = if (currentLang == "es") "Registrado (Activo por DNS)" else "Registered (Active via DNS)",
+                detail = if (lang == "es") "Registrado (Activo por DNS)" else "Registered (Active via DNS)",
                 ip = ip,
                 registrar = null,
                 creationDate = null,
-                method = if (currentLang == "es") "Resolución DNS" else "DNS Resolution"
+                method = if (lang == "es") "Resolución DNS" else "DNS Resolution"
             )
         }
 
@@ -702,11 +703,11 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "desconocido",
-                detail = if (currentLang == "es") "Error de red: ${rawWhois.substring(6)}" else "Network error: ${rawWhois.substring(6)}",
+                detail = if (lang == "es") "Error de red: ${rawWhois.substring(6)}" else "Network error: ${rawWhois.substring(6)}",
                 ip = null,
                 registrar = null,
                 creationDate = null,
-                method = if (currentLang == "es") "Límite / Red WHOIS" else "Limit / Red WHOIS"
+                method = if (lang == "es") "Límite / Red WHOIS" else "Limit / Red WHOIS"
             )
         }
 
@@ -749,13 +750,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val metodo = if (currentLang == "es") "Consulta WHOIS Socket 43" else "WHOIS Socket 43 Query"
+        val metodo = if (lang == "es") "Consulta WHOIS Socket 43" else "WHOIS Socket 43 Query"
 
         if (estaDisponible) {
             return DomainResult(
                 domain = domain,
                 status = "disponible",
-                detail = if (currentLang == "es") "¡Disponible para registro!" else "Available for registration!",
+                detail = if (lang == "es") "¡Disponible para registro!" else "Available for registration!",
                 ip = null,
                 registrar = null,
                 creationDate = null,
@@ -798,7 +799,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "comprado",
-                detail = if (currentLang == "es") "Registrado (Confirmado por WHOIS)" else "Registered (Confirmed by WHOIS)",
+                detail = if (lang == "es") "Registrado (Confirmado por WHOIS)" else "Registered (Confirmed by WHOIS)",
                 ip = null,
                 registrar = registrar,
                 creationDate = fechaCreacion,
@@ -808,7 +809,7 @@ class MainActivity : AppCompatActivity() {
             return DomainResult(
                 domain = domain,
                 status = "desconocido",
-                detail = if (currentLang == "es") "No se pudo determinar con certeza" else "Could not be determined with certainty",
+                detail = if (lang == "es") "No se pudo determinar con certeza" else "Could not be determined with certainty",
                 ip = null,
                 registrar = null,
                 creationDate = null,
@@ -819,7 +820,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun queryWhoisServer(domain: String, server: String): String {
         return try {
-            val socket = Socket(server, 43)
+            val socket = Socket()
+            // Apply remote timeout fix (6 seconds connection timeout)
+            socket.connect(java.net.InetSocketAddress(server, 43), 6000)
             socket.soTimeout = 6000
             val out = PrintWriter(socket.getOutputStream(), true)
             val reader = BufferedReader(InputStreamReader(socket.getInputStream(), "UTF-8"))
@@ -966,7 +969,7 @@ class MainActivity : AppCompatActivity() {
 
             // Draw header text
             paintTitle.color = Color.WHITE
-            canvas.drawText("LiberDom Domain Analysis Report", 30f, 55f, paintTitle)
+            canvas.drawText("OpenFind AI Domain Analysis Report", 30f, 55f, paintTitle)
             
             paintSub.color = Color.parseColor("#9CA3AF")
             val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
@@ -1057,13 +1060,13 @@ class MainActivity : AppCompatActivity() {
                 textSize = 10f
                 textAlign = Paint.Align.CENTER
             }
-            canvas.drawText("Generated natively by LiberDom Android Client. Open Source Security Check.", 297f, 810f, paintFooterText)
+            canvas.drawText("Generated natively by OpenFind Android Client. Open Source Security Check.", 297f, 810f, paintFooterText)
             canvas.drawText("Non-Commercial Evaluation License © 2026", 297f, 825f, paintFooterText)
 
             pdfDoc.finishPage(page)
 
             // Write PDF to app Cache so we can easily share it securely via FileProvider
-            val cacheFile = File(this.cacheDir, "LiberDom_${res.domain.replace(".", "_")}_report.pdf")
+            val cacheFile = File(this.cacheDir, "OpenFind_${res.domain.replace(".", "_")}_report.pdf")
             val outputStream = FileOutputStream(cacheFile)
             pdfDoc.writeTo(outputStream)
             outputStream.flush()
@@ -1071,12 +1074,12 @@ class MainActivity : AppCompatActivity() {
             pdfDoc.close()
 
             // Open share intent
-            val fileUri = FileProvider.getUriForFile(this, "com.neoturcios.liberdom.fileprovider", cacheFile)
+            val fileUri = FileProvider.getUriForFile(this, "openfind.ai.fileprovider", cacheFile)
             
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/pdf"
-                putExtra(Intent.EXTRA_SUBJECT, "LiberDom Domain Report: ${res.domain}")
-                putExtra(Intent.EXTRA_TEXT, "LiberDom Domain Availability Analysis Report for ${res.domain}")
+                putExtra(Intent.EXTRA_SUBJECT, "OpenFind Domain Report: ${res.domain}")
+                putExtra(Intent.EXTRA_TEXT, "OpenFind Domain Availability Analysis Report for ${res.domain}")
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
@@ -1089,28 +1092,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun shareDomainDetails(res: DomainResult) {
         val shareText = if (currentLang == "es") {
-            "🔍 Análisis de dominio LiberDom:\n\n" +
+            "🔍 Análisis de dominio OpenFind AI:\n\n" +
             "Dominio: ${res.domain.uppercase(Locale.getDefault())}\n" +
             "Estado: ${if (res.status == "disponible") "¡DISPONIBLE (LIBRE)!" else "Registrado/Ocupado"}\n" +
             "IP: ${res.ip ?: "Ninguna"}\n" +
             "Registrador: ${res.registrar ?: "N/A"}\n" +
             "Fecha Creación: ${res.creationDate ?: "N/A"}\n" +
             "Detección: ${res.method}\n\n" +
-            "¡Busca dominios gratis con la app LiberDom!"
+            "¡Busca dominios gratis con la app OpenFind AI!"
         } else {
-            "🔍 LiberDom Domain Analysis:\n\n" +
+            "🔍 OpenFind AI Domain Analysis:\n\n" +
             "Domain: ${res.domain.uppercase(Locale.getDefault())}\n" +
             "Status: ${if (res.status == "disponible") "AVAILABLE (FREE)!" else "Taken/Registered"}\n" +
             "IP: ${res.ip ?: "None"}\n" +
             "Registrar: ${res.registrar ?: "N/A"}\n" +
             "Created: ${res.creationDate ?: "N/A"}\n" +
             "Method: ${res.method}\n\n" +
-            "Check domains for free with LiberDom Android!"
+            "Check domains for free with OpenFind AI Android!"
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "LiberDom Check: ${res.domain}")
+            putExtra(Intent.EXTRA_SUBJECT, "OpenFind Check: ${res.domain}")
             putExtra(Intent.EXTRA_TEXT, shareText)
         }
         startActivity(Intent.createChooser(intent, if (currentLang == "es") "Compartir dominio" else "Share domain"))
@@ -1121,8 +1124,8 @@ class MainActivity : AppCompatActivity() {
     // LOCAL STORAGE (PREFERENCES SHARER)
     // ==========================================
     private fun getLocalStore(storeName: String): JSONArray {
-        val sp = getSharedPreferences("liberdom_prefs", Context.MODE_PRIVATE)
-        val raw = sp.getString("liberdom_$storeName", "[]") ?: "[]"
+        val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+        val raw = sp.getString("openfind_$storeName", "[]") ?: "[]"
         return try {
             JSONArray(raw)
         } catch (e: Exception) {
@@ -1154,15 +1157,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Limit size to 50 items
+        // Limit size to 10 items as requested (was 50)
         val cappedList = JSONArray()
-        val limit = minOf(newList.length(), 50)
+        val limit = minOf(newList.length(), 10)
         for (i in 0 until limit) {
             cappedList.put(newList.getJSONObject(i))
         }
 
-        val sp = getSharedPreferences("liberdom_prefs", Context.MODE_PRIVATE)
-        sp.edit().putString("liberdom_$storeName", cappedList.toString()).apply()
+        val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+        sp.edit().putString("openfind_$storeName", cappedList.toString()).apply()
     }
 
     private fun isDomainSaved(domainName: String): Boolean {
@@ -1206,8 +1209,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val sp = getSharedPreferences("liberdom_prefs", Context.MODE_PRIVATE)
-        sp.edit().putString("liberdom_saved", newList.toString()).apply()
+        // Limit saved items to 10 as well to be clean
+        val cappedSaved = JSONArray()
+        val limit = minOf(newList.length(), 10)
+        for (i in 0 until limit) {
+            cappedSaved.put(newList.getJSONObject(i))
+        }
+
+        val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+        sp.edit().putString("openfind_saved", cappedSaved.toString()).apply()
         return !isAlreadySaved
     }
 
@@ -1220,8 +1230,8 @@ class MainActivity : AppCompatActivity() {
                 newList.put(item)
             }
         }
-        val sp = getSharedPreferences("liberdom_prefs", Context.MODE_PRIVATE)
-        sp.edit().putString("liberdom_$storeName", newList.toString()).apply()
+        val sp = getSharedPreferences("openfind_prefs", Context.MODE_PRIVATE)
+        sp.edit().putString("openfind_$storeName", newList.toString()).apply()
         refreshLibraryPanel()
     }
 
@@ -1274,10 +1284,11 @@ class MainActivity : AppCompatActivity() {
 
         updateStats()
 
+        val lang = currentLang
         Thread {
             for (domain in domainsToCheck) {
                 try {
-                    val res = performSingleLookup(domain)
+                    val res = performSingleLookup(domain, lang)
                     runOnUiThread {
                         checkedCount++
                         if (res.status == "disponible") freeCount++ else takenCount++
@@ -1504,9 +1515,10 @@ class MainActivity : AppCompatActivity() {
         btnRowCheck.setOnClickListener {
             btnRowCheck.text = "..."
             btnRowCheck.isEnabled = false
+            val lang = currentLang
             Thread {
                 try {
-                    val result = performSingleLookup(domainName)
+                    val result = performSingleLookup(domainName, lang)
                     runOnUiThread {
                         btnRowCheck.visibility = View.GONE
                         
@@ -1668,7 +1680,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val btnDelete = ImageButton(this).apply {
-                setImageResource(android.R.drawable.ic_menu_delete)
+                setImageResource(R.drawable.ic_delete)
                 background = null
                 imageTintList = ContextCompat.getColorStateList(this@MainActivity, android.R.color.holo_red_light)
                 setPadding(12, 0, 0, 0)
