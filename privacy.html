@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenFind AI - Política de Privacidad</title>
+    <meta name="description" content="Política de privacidad oficial de OpenFind AI. Transparencia total, cero recopilación de datos y privacidad nativa garantizada.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Modern Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Standard Variables and Backgrounds from Parent -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Custom Isolated Styles for Privacy Page -->
+    <style>
+        .privacy-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 24px;
+            position: relative;
+        }
+
+        .privacy-card {
+            width: 100%;
+            max-width: 880px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: var(--shadow-premium);
+            padding: 48px;
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        /* Ambient subtle light inside card */
+        .privacy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--pink));
+        }
+
+        .privacy-header {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 32px;
+            margin-bottom: 36px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--border-glow);
+            background: rgba(255, 255, 255, 0.02);
+            transition: var(--transition);
+        }
+
+        .btn-back:hover {
+            color: var(--cyan);
+            border-color: var(--cyan-glow);
+            background: rgba(6, 182, 212, 0.06);
+            transform: translateX(-4px);
+        }
+
+        .privacy-title-area {
+            margin-top: 12px;
+        }
+
+        .privacy-title-area h1 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-white) 30%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .privacy-subtitle {
+            font-size: 16px;
+            color: var(--text-glow);
+            font-weight: 500;
+        }
+
+        .privacy-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .privacy-meta i {
+            color: var(--purple);
+        }
+
+        /* Intro Text */
+        .privacy-intro-box {
+            background: rgba(139, 92, 246, 0.04);
+            border-left: 3px solid var(--purple);
+            padding: 20px;
+            border-radius: 0 16px 16px 0;
+            margin-bottom: 40px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        /* Content Sections */
+        .policy-section {
+            margin-bottom: 40px;
+            transition: var(--transition);
+        }
+
+        .policy-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .section-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .section-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid var(--cyan-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cyan);
+            font-size: 16px;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
+        }
+
+        /* Alternating icon colors */
+        .policy-section:nth-child(even) .section-icon-box {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: var(--purple-glow);
+            color: var(--purple);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+        }
+
+        .policy-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.2px;
+        }
+
+        .section-text {
+            color: var(--text-glow);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .section-text strong {
+            color: var(--text-white);
+        }
+
+        /* Bullet lists */
+        .policy-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding-left: 8px;
+        }
+
+        .policy-list li {
+            position: relative;
+            padding-left: 28px;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: var(--text-glow);
+        }
+
+        .policy-list li strong {
+            color: var(--text-primary);
+        }
+
+        .policy-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 12px;
+            color: var(--cyan);
+        }
+
+        .policy-section:nth-child(even) .policy-list li::before {
+            color: var(--purple);
+        }
+
+        .policy-list li code {
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glow);
+            padding: 2px 6px;
+            border-radius: 6px;
+            color: var(--pink);
+            font-size: 13px;
+        }
+
+        /* Links */
+        .policy-section a {
+            color: var(--cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--cyan-glow);
+            transition: var(--transition);
+        }
+
+        .policy-section a:hover {
+            color: var(--text-white);
+            border-bottom-color: var(--text-white);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .privacy-card {
+                padding: 28px;
+                border-radius: 18px;
+            }
+
+            .privacy-title-area h1 {
+                font-size: 28px;
+            }
+
+            .header-top {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body class="privacy-body">
+
+    <!-- Fondo de neón animado con círculos difusos flotantes -->
+    <div class="bg-glow">
+        <div class="glow-sphere cyan-glow"></div>
+        <div class="glow-sphere purple-glow"></div>
+        <div class="glow-sphere pink-glow"></div>
+    </div>
+
+    <!-- Contenedor Principal (Tarjeta Glassmorphic) -->
+    <div class="privacy-card">
+        
+        <!-- Cabecera -->
+        <header class="privacy-header">
+            <div class="header-top">
+                <a href="index.html" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> <span data-priv-i18n="back_btn">Volver al Inicio</span>
+                </a>
+                
+                <!-- Selector de Idioma -->
+                <div class="lang-selector-container">
+                    <button class="lang-selector-btn" id="priv-lang-btn">
+                        <i class="fa-solid fa-globe"></i> <span id="priv-lang-label">Español</span> <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="lang-dropdown" id="priv-lang-dropdown">
+                        <button class="lang-option active" data-priv-lang="es">Español</button>
+                        <button class="lang-option" data-priv-lang="en">English</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="privacy-title-area">
+                <h1 data-priv-i18n="title">Política de Privacidad</h1>
+                <div class="privacy-subtitle" data-priv-i18n="subtitle">OpenFind AI — Ecosistema Autónomo de Dominios</div>
+                <div class="privacy-meta">
+                    <i class="fa-regular fa-clock"></i> <span data-priv-i18n="last_updated">Última actualización: 1 de junio de 2026</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Introducción -->
+        <div class="privacy-intro-box">
+            <p id="priv-intro-p1"></p>
+            <p id="priv-intro-p2" style="margin-top: 10px; font-weight: 500; color: var(--cyan);"></p>
+        </div>
+
+        <!-- Secciones de la Política -->
+        <main class="privacy-content">
+            
+            <!-- SECCIÓN 1 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-user-secret"></i></div>
+                    <h2 data-priv-i18n="sec1_title">1. Recopilación y Uso de Datos Personales</h2>
+                </div>
+                <p class="section-text" id="priv-sec1-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec1-item1"></li>
+                    <li id="priv-sec1-item2"></li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 2 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-server"></i></div>
+                    <h2 data-priv-i18n="sec2_title">2. Lógica de Consulta y Seguridad de Datos</h2>
+                </div>
+                <p class="section-text" id="priv-sec2-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec2-item1"></li>
+                    <li id="priv-sec2-item2"></li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 3 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-database"></i></div>
+                    <h2 data-priv-i18n="sec3_title">3. Almacenamiento Local (SharedPreferences)</h2>
+                </div>
+                <p class="section-text" id="priv-sec3-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec3-item1"></li>
+                    <li id="priv-sec3-item2"></li>
+                    <li id="priv-sec3-item3"></li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 4 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-rectangle-ad"></i></div>
+                    <h2 data-priv-i18n="sec4_title">4. Anuncios y Proveedores de Servicios de Terceros</h2>
+                </div>
+                <p class="section-text" id="priv-sec4-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec4-item1"></li>
+                    <li id="priv-sec4-item2"></li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 5 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-key"></i></div>
+                    <h2 data-priv-i18n="sec5_title">5. Permisos Requeridos en el Dispositivo</h2>
+                </div>
+                <p class="section-text" id="priv-sec5-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec5-item1"></li>
+                    <li id="priv-sec5-item2"></li>
+                </ul>
+            </section>
+
+            <!-- SECCIÓN 6 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-child"></i></div>
+                    <h2 data-priv-i18n="sec6_title">6. Privacidad Infantil (Cumplimiento de la COPPA)</h2>
+                </div>
+                <p class="section-text" id="priv-sec6-desc"></p>
+            </section>
+
+            <!-- SECCIÓN 7 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-arrows-rotate"></i></div>
+                    <h2 data-priv-i18n="sec7_title">7. Cambios en esta Política de Privacidad</h2>
+                </div>
+                <p class="section-text" id="priv-sec7-desc"></p>
+            </section>
+
+            <!-- SECCIÓN 8 -->
+            <section class="policy-section">
+                <div class="section-title-wrapper">
+                    <div class="section-icon-box"><i class="fa-solid fa-envelope-open-text"></i></div>
+                    <h2 data-priv-i18n="sec8_title">8. Contacto y Soporte</h2>
+                </div>
+                <p class="section-text" id="priv-sec8-desc"></p>
+                <ul class="policy-list">
+                    <li id="priv-sec8-item1"></li>
+                    <li id="priv-sec8-item2"></li>
+                </ul>
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- Script de Traducciones Aislado y Altamente Eficiente -->
+    <script>
+        const privacyTranslations = {
+            es: {
+                "title": "Política de Privacidad",
+                "subtitle": "OpenFind AI — Ecosistema Autónomo de Dominios",
+                "last_updated": "Última actualización: 1 de junio de 2026",
+                "intro1": "La presente Política de Privacidad describe de manera clara y transparente cómo <strong>OpenFind AI</strong> (en adelante, \"la Aplicación\") trata la información de los usuarios que la descargan y utilizan a través de dispositivos móviles Android (incluida su distribución en Google Play Store).",
+                "intro2": "Nuestra prioridad absoluta es el respeto a tu privacidad. Por ello, hemos diseñado OpenFind AI bajo la filosofía de Cero Recopilación de Datos (Data-Minimization).",
+                
+                "sec1_title": "1. Recopilación y Uso de Datos Personales",
+                "sec1_desc": "<strong>OpenFind AI</strong> <strong>NO recopila, almacena, comparte ni vende ningún tipo de información de identificación personal (PII)</strong>.",
+                "sec1_item1": "<strong>Sin Cuentas ni Registros:</strong> No necesitas crear un perfil, iniciar sesión o proporcionar correos electrónicos, nombres o números telefónicos para utilizar todas las funciones de la aplicación.",
+                "sec1_item2": "<strong>Sin Seguimiento en Segundo Plano:</strong> La aplicación no realiza un seguimiento de tu ubicación, identidad del dispositivo (como IMEI o ID de publicidad) ni de tu historial de navegación general.",
+                
+                "sec2_title": "2. Lógica de Consulta y Seguridad de Datos",
+                "sec2_desc": "Cuando buscas la disponibilidad de un dominio de internet en la aplicación:",
+                "sec2_item1": "<strong>Conexiones Directas:</strong> Las consultas se realizan directamente desde tu dispositivo móvil a los servidores DNS públicos y a los servidores oficiales de WHOIS (puerto 43) a nivel mundial (WHOIS recursivo).",
+                "sec2_item2": "<strong>Sin Servidores Intermedios:</strong> No utilizamos servidores intermediarios ni APIs propietarias para procesar tus consultas de dominios. Toda la transmisión de datos técnicos ocurre en tiempo real y no es registrada en ningún servidor externo bajo nuestro control.",
+                
+                "sec3_title": "3. Almacenamiento Local (SharedPreferences)",
+                "sec3_desc": "La aplicación cuenta con una sección de \"Biblioteca\" (Favoritos e Historial de búsquedas).",
+                "sec3_item1": "<strong>Operación 100% Local:</strong> Todo el historial de búsquedas y dominios guardados como favoritos se almacena exclusivamente en la memoria interna de tu dispositivo móvil mediante la tecnología nativa de <code>SharedPreferences</code>.",
+                "sec3_item2": "<strong>Límite de Historial:</strong> Para proteger tu espacio de almacenamiento y privacidad, la lista está limitada a un máximo de los <strong>10 elementos más recientes</strong>.",
+                "sec3_item3": "<strong>Control Total:</strong> Puedes borrar todo el historial y favoritos en cualquier momento presionando el botón \"Limpiar\" en la aplicación. Asimismo, al desinstalar la aplicación, todos estos datos locales se borrarán permanentemente del dispositivo de forma automática.",
+                
+                "sec4_title": "4. Anuncios y Proveedores de Servicios de Terceros",
+                "sec4_desc": "De acuerdo con los términos de nuestra licencia no comercial:",
+                "sec4_item1": "<strong>Sin Publicidad (100% Libre de Ads):</strong> No incluimos redes publicitarias de terceros (como Google AdMob, Unity, AppLovin, etc.). No verás banners, anuncios intersticiales o videos promocionales en la aplicación.",
+                "sec4_item2": "<strong>Sin Analíticas Invasivas:</strong> No empleamos SDKs de analítica predictiva de comportamiento de usuario que recolecten información en segundo plano.",
+                
+                "sec5_title": "5. Permisos Requeridos en el Dispositivo",
+                "sec5_desc": "Para funcionar correctamente, la aplicación solicita exclusivamente los siguientes accesos a nivel de sistema operativo:",
+                "sec5_item1": "<strong>INTERNET (<code>android.permission.INTERNET</code>):</strong> Requerido para realizar las consultas técnicas DNS y abrir conexiones por Sockets TCP a las bases de datos mundiales de WHOIS.",
+                "sec5_item2": "<strong>ACCESS_NETWORK_STATE (<code>android.permission.ACCESS_NETWORK_STATE</code>):</strong> Utilizado únicamente para comprobar si tu celular cuenta con una conexión activa a internet antes de procesar una búsqueda, evitando errores de red.",
+                
+                "sec6_title": "6. Privacidad Infantil (Cumplimiento de la COPPA)",
+                "sec6_desc": "Dado que <strong>OpenFind AI</strong> no recopila ningún tipo de información personal, es completamente segura para menores de edad. No solicitamos edad ni recolectamos datos que puedan comprometer a niños menores de 13 años.",
+                
+                "sec7_title": "7. Cambios en esta Política de Privacidad",
+                "sec7_desc": "Nos reservamos el derecho de actualizar esta Política de Privacidad si agregamos nuevas características no invasivas en el futuro. Cualquier cambio relevante se publicará dentro de este documento y será visible en el repositorio oficial de código abierto.",
+                
+                "sec8_title": "8. Contacto y Soporte",
+                "sec8_desc": "Si tienes cualquier duda técnica o comentario sobre esta Política de Privacidad o la seguridad de la aplicación, puedes ponerte en contacto con el equipo a través de:",
+                "sec8_item1": "<strong>Repositorio Oficial de GitHub:</strong> <a href=\"https://github.com/NeoTurcios/openfind\" target=\"_blank\">github.com/NeoTurcios/openfind</a>",
+                "sec8_item2": "<strong>Correo de Soporte:</strong> <a href=\"mailto:hola@neopunto.com\">hola@neopunto.com</a>",
+                
+                "back_btn": "Volver al Inicio"
+            },
+            en: {
+                "title": "Privacy Policy",
+                "subtitle": "OpenFind AI — Autonomous Domain Ecosystem",
+                "last_updated": "Last updated: June 1, 2026",
+                "intro1": "This Privacy Policy describes in a clear and transparent manner how <strong>OpenFind AI</strong> (hereinafter, \"the Application\") handles user information collected when downloading and using it on Android mobile devices (including its distribution on the Google Play Store).",
+                "intro2": "Our absolute priority is respecting your privacy. Therefore, we have designed OpenFind AI under the philosophy of Zero Data Collection (Data-Minimization).",
+                
+                "sec1_title": "1. Personal Data Collection and Use",
+                "sec1_desc": "<strong>OpenFind AI</strong> <strong>does NOT collect, store, share, or sell any Personally Identifiable Information (PII)</strong>.",
+                "sec1_item1": "<strong>No Accounts or Registrations:</strong> You do not need to create a profile, sign in, or provide emails, names, or phone numbers to use all features of the application.",
+                "sec1_item2": "<strong>No Background Tracking:</strong> The application does not track your location, device identity (such as IMEI or advertising ID), or your general browsing history.",
+                
+                "sec2_title": "2. Query Logic and Data Security",
+                "sec2_desc": "When you search for the availability of an internet domain in the application:",
+                "sec2_item1": "<strong>Direct Connections:</strong> Queries are made directly from your mobile device to public DNS servers and official WHOIS servers (port 43) worldwide (recursive WHOIS).",
+                "sec2_item2": "<strong>No Intermediate Servers:</strong> We do not use proxy servers or proprietary APIs to process your domain queries. All transmission of technical data occurs in real time and is not logged on any external server under our control.",
+                
+                "sec3_title": "3. Local Storage (SharedPreferences)",
+                "sec3_desc": "The application features a \"Library\" section (Favorites and Search History).",
+                "sec3_item1": "<strong>100% Local Operation:</strong> All search history and domains saved as favorites are stored exclusively in the internal storage of your mobile device using native <code>SharedPreferences</code> technology.",
+                "sec3_item2": "<strong>History Limit:</strong> To protect your storage space and privacy, the list is limited to a maximum of the <strong>10 most recent items</strong>.",
+                "sec3_item3": "<strong>Full Control:</strong> You can clear all history and favorites at any time by pressing the \"Clear\" button in the application. Additionally, when uninstalling the application, all local data is automatically and permanently deleted from the device.",
+                
+                "sec4_title": "4. Ads and Third-Party Service Providers",
+                "sec4_desc": "According to the terms of our non-commercial license:",
+                "sec4_item1": "<strong>No Advertising (100% Ad-Free):</strong> We do not integrate third-party ad networks (such as Google AdMob, Unity, AppLovin, etc.). You will not see banners, interstitial ads, or promotional videos in the application.",
+                "sec4_item2": "<strong>No Invasive Analytics:</strong> We do not use predictive behavior analytics SDKs that collect data in the background.",
+                
+                "sec5_title": "5. Device Permissions Required",
+                "sec5_desc": "To function correctly, the application only requests the following operating system-level permissions:",
+                "sec5_item1": "<strong>INTERNET (<code>android.permission.INTERNET</code>):</strong> Required to perform technical DNS queries and open TCP Socket connections to global WHOIS databases.",
+                "sec5_item2": "<strong>ACCESS_NETWORK_STATE (<code>android.permission.ACCESS_NETWORK_STATE</code>):</strong> Used solely to check if your phone has an active internet connection before initiating a search, avoiding connection errors.",
+                
+                "sec6_title": "6. Children's Privacy (COPPA Compliance)",
+                "sec6_desc": "Since <strong>OpenFind AI</strong> does not collect any personal information, it is completely safe for minors. We do not ask for age or collect any information that could compromise children under 13.",
+                
+                "sec7_title": "7. Changes to this Privacy Policy",
+                "sec7_desc": "We reserve the right to update this Privacy Policy if we add new non-invasive features in the future. Any relevant changes will be published in this document and will be visible on the official open-source repository.",
+                
+                "sec8_title": "8. Contact & Support",
+                "sec8_desc": "If you have any technical questions or feedback regarding this Privacy Policy or the security of the application, you can contact the team at:",
+                "sec8_item1": "<strong>Official GitHub Repository:</strong> <a href=\"https://github.com/NeoTurcios/openfind\" target=\"_blank\">github.com/NeoTurcios/openfind</a>",
+                "sec8_item2": "<strong>Support Email:</strong> <a href=\"mailto:hola@neopunto.com\">hola@neopunto.com</a>",
+                
+                "back_btn": "Back to Home"
+            }
+        };
+
+        let currentLang = localStorage.getItem("openfind_lang") || "es";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarSelectorIdiomaPrivacidad();
+            aplicarTraduccionesPrivacidad(currentLang);
+        });
+
+        function inicializarSelectorIdiomaPrivacidad() {
+            const langBtn = document.getElementById("priv-lang-btn");
+            const langDropdown = document.getElementById("priv-lang-dropdown");
+            const langOptions = document.querySelectorAll("[data-priv-lang]");
+
+            langBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                langDropdown.classList.toggle("show");
+            });
+
+            document.addEventListener("click", () => {
+                langDropdown.classList.remove("show");
+            });
+
+            langOptions.forEach(opt => {
+                opt.addEventListener("click", () => {
+                    const lang = opt.getAttribute("data-priv-lang");
+                    currentLang = lang;
+                    localStorage.setItem("openfind_lang", lang);
+                    aplicarTraduccionesPrivacidad(lang);
+                });
+            });
+        }
+
+        function aplicarTraduccionesPrivacidad(lang) {
+            // Translate elements with plain text data-priv-i18n
+            document.querySelectorAll("[data-priv-i18n]").forEach(elem => {
+                const key = elem.getAttribute("data-priv-i18n");
+                if (privacyTranslations[lang] && privacyTranslations[lang][key]) {
+                    elem.textContent = privacyTranslations[lang][key];
+                }
+            });
+
+            // Translate elements with HTML markup
+            document.getElementById("priv-intro-p1").innerHTML = privacyTranslations[lang]["intro1"];
+            document.getElementById("priv-intro-p2").innerHTML = privacyTranslations[lang]["intro2"];
+            
+            document.getElementById("priv-sec1-desc").innerHTML = privacyTranslations[lang]["sec1_desc"];
+            document.getElementById("priv-sec1-item1").innerHTML = privacyTranslations[lang]["sec1_item1"];
+            document.getElementById("priv-sec1-item2").innerHTML = privacyTranslations[lang]["sec1_item2"];
+            
+            document.getElementById("priv-sec2-desc").innerHTML = privacyTranslations[lang]["sec2_desc"];
+            document.getElementById("priv-sec2-item1").innerHTML = privacyTranslations[lang]["sec2_item1"];
+            document.getElementById("priv-sec2-item2").innerHTML = privacyTranslations[lang]["sec2_item2"];
+            
+            document.getElementById("priv-sec3-desc").innerHTML = privacyTranslations[lang]["sec3_desc"];
+            document.getElementById("priv-sec3-item1").innerHTML = privacyTranslations[lang]["sec3_item1"];
+            document.getElementById("priv-sec3-item2").innerHTML = privacyTranslations[lang]["sec3_item2"];
+            document.getElementById("priv-sec3-item3").innerHTML = privacyTranslations[lang]["sec3_item3"];
+            
+            document.getElementById("priv-sec4-desc").innerHTML = privacyTranslations[lang]["sec4_desc"];
+            document.getElementById("priv-sec4-item1").innerHTML = privacyTranslations[lang]["sec4_item1"];
+            document.getElementById("priv-sec4-item2").innerHTML = privacyTranslations[lang]["sec4_item2"];
+            
+            document.getElementById("priv-sec5-desc").innerHTML = privacyTranslations[lang]["sec5_desc"];
+            document.getElementById("priv-sec5-item1").innerHTML = privacyTranslations[lang]["sec5_item1"];
+            document.getElementById("priv-sec5-item2").innerHTML = privacyTranslations[lang]["sec5_item2"];
+            
+            document.getElementById("priv-sec6-desc").innerHTML = privacyTranslations[lang]["sec6_desc"];
+            document.getElementById("priv-sec7-desc").innerHTML = privacyTranslations[lang]["sec7_desc"];
+            
+            document.getElementById("priv-sec8-desc").innerHTML = privacyTranslations[lang]["sec8_desc"];
+            document.getElementById("priv-sec8-item1").innerHTML = privacyTranslations[lang]["sec8_item1"];
+            document.getElementById("priv-sec8-item2").innerHTML = privacyTranslations[lang]["sec8_item2"];
+
+            // Update language selector labels
+            document.getElementById("priv-lang-label").innerText = lang === "es" ? "Español" : "English";
+            
+            document.querySelectorAll("[data-priv-lang]").forEach(opt => {
+                if (opt.getAttribute("data-priv-lang") === lang) {
+                    opt.classList.add("active");
+                } else {
+                    opt.classList.remove("active");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
