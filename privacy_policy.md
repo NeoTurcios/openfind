@@ -56,5 +56,5 @@ Nos reservamos el derecho de actualizar esta Política de Privacidad si agregamo
 
 ## 8. Contacto y Soporte
 Si tienes cualquier duda técnica o comentario sobre esta Política de Privacidad o la seguridad de la aplicación, puedes ponerte en contacto con el equipo a través de:
-*   **Repositorio Oficial de GitHub:** [https://github.com/NeoTurcios/liberdom](https://github.com/NeoTurcios/liberdom)
-*   **Correo de Soporte:** *[Agrega aquí tu correo de contacto de Google Play Console]*
+*   **Repositorio Oficial de GitHub:** [https://github.com/NeoTurcios/openfind](https://github.com/NeoTurcios/openfind)
+*   **Correo de Soporte:** hola@neopunto.com

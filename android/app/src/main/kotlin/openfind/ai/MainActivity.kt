@@ -923,98 +923,211 @@ class MainActivity : AppCompatActivity() {
     // LOCAL BRAND INTELLIGENCE ENGINE (HEURISTIC)
     // ==========================================
     private fun evaluateDomainHeuristically(domainName: String): Pair<Double, String> {
-        val nameOnly = domainName.substringBefore(".")
-        val tld = domainName.substringAfter(".", "")
+        val nameOnly = domainName.substringBefore(".").lowercase()
+        val tld = domainName.substringAfter(".", "").lowercase()
         val length = nameOnly.length
-        
-        var score = 8.0
+
+        var pronScore = 7.5
+        var memScore = 7.0
+        var lenScore = 8.0
+        var tldScore = 7.0
+
         var bonusReason = ""
-        
-        // 1. Length analysis (shorter is more corporate/premium)
-        if (length <= 5) {
-            score += 1.5
-            bonusReason = if (currentLang == "es") "Nombre ultra-corto premium" else "Ultra-short premium name"
-        } else if (length <= 8) {
-            score += 0.8
-        } else if (length > 12) {
-            score -= 1.5
+        var memoryMatchReason = ""
+
+        // 1. ADVANCED LENGTH EVALUATION
+        lenScore = when {
+            length <= 4 -> 10.0 // Ultra-premium
+            length <= 6 -> 9.5  // Premium
+            length <= 8 -> 8.5  // Highly memorable
+            length <= 10 -> 7.0 // Standard
+            length <= 12 -> 5.5 // Medium length
+            else -> 3.5         // Too long for clean branding
         }
+
+        // 2. ADVANCED PRONUNCIABILITY & SYLLABLE RHYTHM
+        val vowelsCount = nameOnly.count { it in "aeiou" }
         
-        // 2. Dash/Number penalty
+        if (length > 0) {
+            val ratio = vowelsCount.toDouble() / length
+            pronScore = when {
+                ratio in 0.38..0.52 -> 9.8 // Perfect balance (vowel-consonant harmony)
+                ratio in 0.25..0.65 -> 8.5 // Standard pronunciability
+                else -> 5.0                // Too many consonants or vowels
+            }
+
+            // Syllable Count Heuristics (counting vowel groups)
+            var syllableCount = 0
+            var lastWasVowel = false
+            for (char in nameOnly) {
+                val isVowel = char in "aeiou"
+                if (isVowel && !lastWasVowel) {
+                    syllableCount++
+                }
+                lastWasVowel = isVowel
+            }
+            if (syllableCount in 2..3) {
+                pronScore += 0.5 // High brand recall rhythm (e.g. galaxy, neopunto)
+            } else if (syllableCount == 1 && length <= 4) {
+                pronScore += 0.3 // Punchy single-syllable name (e.g. tech, mind)
+            }
+        }
+
+        // Penalize complex consonant clusters (3+ consecutive consonants)
+        if (Regex("[bcdfghjklmnpqrstvwxyz]{3,}").containsMatchIn(nameOnly)) {
+            pronScore -= 3.0
+        }
+        // Penalize repeating complex letters or rare transitions (e.g. qj, xk, wz)
+        if (Regex("[qxzwj][qxzwyj]").containsMatchIn(nameOnly)) {
+            pronScore -= 2.0
+        }
+        // Reward tech double-vowels (e.g. ee in geek, oo in neopunto)
+        if (nameOnly.contains("ee") || nameOnly.contains("oo") || nameOnly.contains("aa")) {
+            pronScore += 0.5
+        }
+        // Clamp metrics between 1.0 and 10.0
+        pronScore = Math.max(1.0, Math.min(10.0, pronScore))
+
+        // 3. ADVANCED MEMORABILITY (Semantics, rhythmic balance, special chars)
+        // Check for premium startup keywords (semantic mapping)
+        val cognitiveWords = listOf("ai", "bot", "neo", "intel", "mind", "galaxy", "yi", "tech", "dev", "labs", "hub", "nexus", "core", "app", "flow", "think", "deep", "learn", "cloud", "net", "open", "find")
+        var matchedKeyword = ""
+        for (word in cognitiveWords) {
+            if (nameOnly.contains(word)) {
+                matchedKeyword = word
+                memScore += 1.5
+                break
+            }
+        }
+
         if (nameOnly.contains("-") || nameOnly.contains("_")) {
-            score -= 1.5
+            memScore -= 2.0 // Hyphens degrade brand quality
         }
         if (nameOnly.any { it.isDigit() }) {
-            score -= 1.0
+            memScore -= 1.5 // Numbers reduce verbal recall
         }
-        
-        // 3. Buzzword evaluation (AI/Cloud/Tech focus)
-        if (nameOnly.endsWith("ai") || tld == "ai") {
-            score += 1.0
-            bonusReason = if (currentLang == "es") "Ideal para Inteligencia Artificial" else "Perfect for Artificial Intelligence"
-        } else if (nameOnly.endsWith("tech") || nameOnly.endsWith("flow") || nameOnly.endsWith("labs") || nameOnly.endsWith("hub")) {
-            score += 0.5
+        memScore = Math.max(1.0, Math.min(10.0, memScore))
+
+        // 4. ADVANCED TLD FITNESS AND FIT SEGMENTATION
+        tldScore = when (tld) {
+            "ai" -> {
+                // If it is .ai, it fits cognitive words perfectly
+                val aiWords = listOf("mind", "brain", "bot", "intel", "neural", "deep", "learn", "think", "chat", "net", "open", "find", "labs")
+                if (aiWords.any { nameOnly.contains(it) }) 10.0 else 9.0
+            }
+            "com" -> 9.8 // King of trust
+            "io" -> {
+                val techWords = listOf("tech", "dev", "labs", "code", "cyber", "flow", "hub", "sys")
+                if (techWords.any { nameOnly.contains(it) }) 10.0 else 9.0
+            }
+            "co" -> 8.5
+            "net" -> 7.8
+            else -> 6.5
         }
-        
-        // 4. LOCAL MEMORY MATCHING (High Intelligence Simulation)
+
+        // 5. LOCAL MEMORY PERSONALIZATION (Dynamic AI adaptation)
         try {
             val savedList = getLocalStore("saved")
-            var memoryMatch = false
+            val savedTldsCount = mutableMapOf<String, Int>()
+            var savedKeywordsCount = 0
+            
             for (i in 0 until savedList.length()) {
-                val savedDomain = savedList.getJSONObject(i).getString("domain")
-                val savedNameOnly = savedDomain.substringBefore(".")
+                val savedDomain = savedList.getJSONObject(i).getString("domain").lowercase()
+                val savedName = savedDomain.substringBefore(".")
                 val savedTld = savedDomain.substringAfter(".", "")
                 
-                // If user likes domains with the same TLD or similar keywords
-                if (tld.isNotEmpty() && tld == savedTld) {
-                    score += 0.3
-                }
-                if (savedNameOnly.contains(nameOnly) || nameOnly.contains(savedNameOnly)) {
-                    memoryMatch = true
-                    score += 0.8
+                savedTldsCount[savedTld] = (savedTldsCount[savedTld] ?: 0) + 1
+                
+                // If user likes similar lengths or segments
+                if (savedName.contains(nameOnly) || nameOnly.contains(savedName)) {
+                    savedKeywordsCount++
                 }
             }
-            if (memoryMatch) {
-                bonusReason = if (currentLang == "es") "Coincide con tus intereses guardados en memoria local" else "Matches your local memory preferences"
+
+            // Find favorite TLD
+            val favoriteTld = savedTldsCount.maxByOrNull { it.value }?.key ?: ""
+            if (favoriteTld.isNotEmpty() && tld == favoriteTld) {
+                tldScore += 0.8
+                bonusReason = if (currentLang == "es") "Coincide con tu extensión preferida en favoritos (.${tld})" else "Matches your favorite extension (.${tld})"
+            }
+
+            // Boost score if keyword is highly related to saved memory
+            if (savedKeywordsCount > 0) {
+                memScore += 0.8
+                memoryMatchReason = if (currentLang == "es") "Semánticamente alineado a tus intereses de marca" else "Semantically aligned with your brand interests"
             }
         } catch (e: Exception) {
-            // Ignore memory read errors
+            // Ignore memory errors
         }
-        
-        // Clamp score between 1.0 and 10.0
-        score = Math.max(1.0, Math.min(10.0, score))
-        val formattedScore = Math.round(score * 10.0) / 10.0
-        
-        // Feedback generator
-        val feedback = if (currentLang == "es") {
+
+        tldScore = Math.max(1.0, Math.min(10.0, tldScore))
+
+        // Total weighted score
+        var finalScore = (pronScore * 0.25) + (memScore * 0.35) + (lenScore * 0.15) + (tldScore * 0.25)
+        finalScore = Math.round(finalScore * 10.0) / 10.0
+        finalScore = Math.max(1.0, Math.min(10.0, finalScore))
+
+        // Advanced AI detailed feedback based on segmented scores
+        val feedback = StringBuilder("🤖 ")
+        if (currentLang == "es") {
             when {
-                formattedScore >= 9.0 -> {
-                    if (bonusReason.isNotEmpty()) {
-                        "🤖 Yo te recomiendo este dominio. Es elegante, sumamente corporativo ($bonusReason). ¡Excelente marca!"
-                    } else {
-                        "🤖 Yo te recomiendo este dominio. Suena limpio, profesional y de gran impacto corporativo."
-                    }
+                finalScore >= 9.0 -> {
+                    feedback.append("Recomiendo ampliamente esta marca. ")
+                    if (length <= 5) feedback.append("Es ultra-corta y sumamente memorable. ")
+                    if (matchedKeyword.isNotEmpty()) feedback.append("El concepto '${matchedKeyword}' proyecta innovación. ")
+                    if (bonusReason.isNotEmpty()) feedback.append("$bonusReason. ")
+                    if (memoryMatchReason.isNotEmpty()) feedback.append("$memoryMatchReason. ")
+                    feedback.append("La fluidez fonética es excelente (S-tier).")
                 }
-                formattedScore >= 7.5 -> "Muy buen nombre de marca. Memorable, ágil y excelente para startups o negocios digitales."
-                formattedScore >= 5.5 -> "Es aceptable comercialmente, aunque su pronunciación o deletreo podría ser complejo debido a la longitud o símbolos."
-                else -> "Es un nombre complejo para marca. Te sugiero usar el Generador de OpenFind AI para obtener ideas más memorables."
+                finalScore >= 7.5 -> {
+                    feedback.append("Muy buena opción de marca. ")
+                    if (pronScore >= 8.5) feedback.append("Fácil de pronunciar y deletrear. ")
+                    if (tldScore >= 8.5) feedback.append("Extensión muy sólida para tu nicho. ")
+                    feedback.append("El agente estima una viabilidad de comercialización superior al 85%.")
+                }
+                finalScore >= 5.5 -> {
+                    feedback.append("Comercialmente aceptable. ")
+                    if (length > 10) feedback.append("La longitud es un poco extensa, lo que puede dificultar el dictado. ")
+                    if (nameOnly.contains("-") || nameOnly.contains("_")) feedback.append("Los símbolos restan memorabilidad directa. ")
+                    feedback.append("Funciona, pero te sugiero buscar alternativas con ritmo fonético más ágil.")
+                }
+                else -> {
+                    feedback.append("Nombre de marca complejo. ")
+                    if (pronScore < 5.0) feedback.append("La estructura silábica dificulta la retención mental. ")
+                    feedback.append("Te sugiero usar el generador OpenFind en modo Yi o AI para idear alternativas.")
+                }
             }
         } else {
             when {
-                formattedScore >= 9.0 -> {
-                    if (bonusReason.isNotEmpty()) {
-                        "🤖 I highly recommend this domain. Sleek, professional, and corporate ($bonusReason). Brilliant branding!"
-                    } else {
-                        "🤖 I highly recommend this domain. It sounds clean, professional, and has high corporate impact."
-                    }
+                finalScore >= 9.0 -> {
+                    feedback.append("Highly recommend this brand. ")
+                    if (length <= 5) feedback.append("It is ultra-short and highly memorable. ")
+                    if (matchedKeyword.isNotEmpty()) feedback.append("The '${matchedKeyword}' concept projects innovation. ")
+                    if (bonusReason.isNotEmpty()) feedback.append("$bonusReason. ")
+                    if (memoryMatchReason.isNotEmpty()) feedback.append("$memoryMatchReason. ")
+                    feedback.append("Excellent phonetic flow (S-tier).")
                 }
-                formattedScore >= 7.5 -> "Very good brand name. Memorable, agile, and excellent for digital services."
-                formattedScore >= 5.5 -> "Commercially acceptable, though spelling could be complex due to length or characters."
-                else -> "Complex name for branding. I suggest using the OpenFind AI Generator to get more memorable options."
+                finalScore >= 7.5 -> {
+                    feedback.append("Very good branding option. ")
+                    if (pronScore >= 8.5) feedback.append("Easy to pronounce and spell. ")
+                    if (tldScore >= 8.5) feedback.append("Very solid extension for your industry. ")
+                    feedback.append("The agent estimates a brand viability above 85%.")
+                }
+                finalScore >= 5.5 -> {
+                    feedback.append("Commercially acceptable. ")
+                    if (length > 10) feedback.append("The name length is slightly extensive, which might lower direct recall. ")
+                    if (nameOnly.contains("-") || nameOnly.contains("_")) feedback.append("Symbols reduce overall retention. ")
+                    feedback.append("It works, but I suggest searching for punchier alternatives.")
+                }
+                else -> {
+                    feedback.append("Complex name for branding. ")
+                    if (pronScore < 5.0) feedback.append("The syllable structure impairs mental retention. ")
+                    feedback.append("I suggest using the OpenFind generator in Yi or AI style for better options.")
+                }
             }
         }
-        
-        return Pair(formattedScore, feedback)
+
+        return Pair(finalScore, feedback.toString())
     }
 
     // ==========================================

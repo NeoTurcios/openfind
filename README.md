@@ -37,7 +37,7 @@
 Abre tu aplicación **Termux** y ejecuta esta única línea para clonar e instalar el alias rápido de forma totalmente automatizada:
 
 ```bash
-pkg install git -y && git clone https://github.com/NeoTurcios/liberdom.git && cd liberdom && chmod +x install.sh && ./install.sh
+pkg install git -y && git clone https://github.com/NeoTurcios/openfind.git && cd openfind && chmod +x install.sh && ./install.sh
 ```
 
 Una vez completada la instalación, puedes abrir la herramienta desde cualquier directorio escribiendo:
@@ -119,7 +119,7 @@ Este proyecto se distribuye bajo una **Licencia Personalizada de Uso No Comercia
 
 *   **Uso No Comercial Estricto (Prohibido monetizar):** Queda estrictamente prohibido vender, alquilar, sublicenciar, comercializar o usar este software o cualquier parte de su código fuente para beneficio comercial directo o indirecto. **No está permitido colocar anuncios (Ads) en la Play Store o Web.**
 *   **Requisito de Atribución Obligatoria:** Al publicar o redistribuir versiones (modificadas o compiladas) de este software, **debes mantener visible en la interfaz** el enlace al repositorio original de GitHub del motor LiberDom en el cual está basado:  
-    `https://github.com/NeoTurcios/liberdom`
+    `https://github.com/NeoTurcios/openfind`
 
 ---
 
