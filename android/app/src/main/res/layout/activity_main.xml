@@ -209,6 +209,40 @@
                         android:inputType="textUri"
                         android:layout_marginBottom="16dp" />
 
+                    <!-- Advanced Server Audit Switch -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp"
+                        android:paddingHorizontal="4dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_shield"
+                            app:tint="#8b5cf6"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/lblAuditSwitch"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Auditoría Avanzada (Cloudflare / SSL)"
+                            android:textColor="#f3f4f6"
+                            android:textSize="14sp" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/swtAdvancedAudit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            app:thumbTint="#00e676"
+                            app:trackTint="#374151" />
+                    </LinearLayout>
+
                     <Button
                         android:id="@+id/btnCheck"
                         android:layout_width="match_parent"
@@ -407,6 +441,118 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <!-- SSL ACTIVE ROW -->
+                    <LinearLayout
+                        android:id="@+id/rowSsl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/lblSsl"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="SSL Activo:"
+                            android:textColor="#9ca3af"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/txtSsl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🟢 Activo"
+                            android:textColor="#ffffff"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- SSL ISSUER ROW -->
+                    <LinearLayout
+                        android:id="@+id/rowSslIssuer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/lblSslIssuer"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Emisor SSL:"
+                            android:textColor="#9ca3af"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/txtSslIssuer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Let's Encrypt"
+                            android:textColor="#ffffff"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- CLOUDFLARE ROW -->
+                    <LinearLayout
+                        android:id="@+id/rowCloudflare"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/lblCloudflare"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Estado Cloudflare:"
+                            android:textColor="#9ca3af"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/txtCloudflare"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nube Naranja"
+                            android:textColor="#ffffff"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- NAME SERVERS ROW -->
+                    <LinearLayout
+                        android:id="@+id/rowNs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/lblNs"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Servidores de Nombres (NS):"
+                            android:textColor="#9ca3af"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/txtNs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ns1.cloudflare.com"
+                            android:textColor="#ffffff"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -431,6 +577,50 @@
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:fontFamily="monospace" />
+                    </LinearLayout>
+
+                    <!-- CLOUDFLARE SHIELD GLOWING CARD -->
+                    <LinearLayout
+                        android:id="@+id/containerCloudflareBadge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/glass_capsule_background"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/imgCloudflareIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_cloud"
+                            android:layout_marginEnd="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/txtCloudflareBadgeTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cloudflare Detectado"
+                                android:textColor="#ffffff"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/txtCloudflareBadgeDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="El tráfico está cifrado y protegido por la Nube Naranja."
+                                android:textColor="#9ca3af"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- NEW FEATURE: PREMIUM ACTIONS TOOLBAR (SAVE, EXPORT, SHARE, COPY) -->

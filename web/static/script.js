@@ -16,6 +16,7 @@ const translations = {
         "hero.single_subtitle": "Búsqueda directa e híbrida DNS/WHOIS de bajo nivel sin intermediarios ni cobros.",
         "search.placeholder": "Introduce tu dominio... (ej: miweb.com, proyecto.co)",
         "search.submit": "<span>Comprobar disponibilidad</span> <i class=\"fa-solid fa-arrow-right\"></i>",
+        "search.audit_label": "Auditoría Avanzada de Servidores (Cloudflare / SSL)",
         
         "hero.bulk_title": "Escáner masivo de dominios",
         "hero.bulk_subtitle": "Pega una lista de palabras, dominios o texto libre. Los procesamos en paralelo en segundos.",
@@ -111,6 +112,7 @@ const translations = {
         "hero.single_subtitle": "Low-level direct and hybrid DNS/WHOIS search without intermediaries or fees.",
         "search.placeholder": "Enter your domain... (e.g. myweb.com, project.co)",
         "search.submit": "<span>Check availability</span> <i class=\"fa-solid fa-arrow-right\"></i>",
+        "search.audit_label": "Advanced Server Audit (Cloudflare / SSL)",
         
         "hero.bulk_title": "Bulk Domain Scanner",
         "hero.bulk_subtitle": "Paste a list of words, domains, or free text. We process them in parallel in seconds.",
@@ -383,8 +385,11 @@ function inicializarBusquedaIndividual() {
             </div>
         `;
 
-        // Fetch a la API Flask enviando lang actual
-        fetch(`/api/check?domain=${encodeURIComponent(rawDomain)}&dns_only=false&lang=${currentLang}`)
+        const auditToggle = document.getElementById("audit-toggle-checkbox");
+        const auditActive = auditToggle ? auditToggle.checked : true;
+
+        // Fetch a la API Flask enviando lang actual y audit
+        fetch(`/api/check?domain=${encodeURIComponent(rawDomain)}&dns_only=false&lang=${currentLang}&audit=${auditActive}`)
             .then(res => {
                 if (!res.ok) throw new Error(translations[currentLang]["js.api_error"]);
                 return res.json();
@@ -431,6 +436,63 @@ function mostrarResultadoIndividual(data) {
         messageText = translations[currentLang]["js.msg.registrado"];
     }
 
+    let auditHtml = "";
+    let cloudflareHtml = "";
+
+    if (estado === "comprado") {
+        // SSL info
+        if (info.ssl_active !== undefined) {
+            const sslLabel = currentLang === "es" ? "SSL Activo" : "Active SSL";
+            const sslIssuerLabel = currentLang === "es" ? "Emisor SSL" : "SSL Issuer";
+            const sslVal = info.ssl_active ? (currentLang === "es" ? "🟢 Activo" : "🟢 Active") : (currentLang === "es" ? "🔴 Inactivo" : "🔴 Inactive");
+            auditHtml += `
+            <div class="info-row">
+                <span class="info-label">${sslLabel}</span>
+                <span class="info-value">${sslVal}</span>
+            </div>`;
+            if (info.ssl_issuer) {
+                auditHtml += `
+                <div class="info-row">
+                    <span class="info-label">${sslIssuerLabel}</span>
+                    <span class="info-value">${info.ssl_issuer}</span>
+                </div>`;
+            }
+        }
+        
+        // Name Servers (NS)
+        if (info.ns && info.ns.length > 0) {
+            const nsLabel = currentLang === "es" ? "Servidores de Nombres (NS)" : "Name Servers (NS)";
+            auditHtml += `
+            <div class="info-row">
+                <span class="info-label">${nsLabel}</span>
+                <span class="info-value" style="font-size: 13px; font-family: var(--font-mono); text-align: right;">${info.ns.join(", ")}</span>
+            </div>`;
+        }
+
+        // Cloudflare badge card
+        if (info.cloudflare && info.cloudflare !== "none") {
+            const isOrange = info.cloudflare === "orange";
+            const badgeClass = isOrange ? "orange" : "gray";
+            const cloudTitle = isOrange 
+                ? (currentLang === "es" ? "Servidor detrás de Cloudflare (Orange Cloud)" : "Server proxied by Cloudflare (Orange Cloud)") 
+                : (currentLang === "es" ? "Servidor usa DNS de Cloudflare (Gray Cloud)" : "Server uses Cloudflare DNS (Gray Cloud)");
+            const cloudDesc = isOrange 
+                ? (currentLang === "es" ? "Tráfico web cifrado, acelerado y protegido de forma activa." : "Web traffic is actively encrypted, accelerated, and protected.") 
+                : (currentLang === "es" ? "Resolución DNS mediante Cloudflare sin proxy de tráfico activo." : "DNS resolution via Cloudflare without active traffic proxying.");
+            
+            cloudflareHtml = `
+            <div class="cf-badge-card ${badgeClass}">
+                <div class="cf-cloud-icon">
+                    <i class="fa-solid fa-cloud"></i>
+                </div>
+                <div class="cf-info-text">
+                    <h4>${cloudTitle}</h4>
+                    <p>${cloudDesc}</p>
+                </div>
+            </div>`;
+        }
+    }
+
     // Inyectar HTML de tarjeta estilizada localizada
     resultWrapper.innerHTML = `
         <div class="result-card ${cardClass}">
@@ -463,11 +525,16 @@ function mostrarResultadoIndividual(data) {
                     <span class="info-label">${translations[currentLang]["js.label.creation_date"]}</span>
                     <span class="info-value">${info.fecha_creacion}</span>
                 </div>` : ''}
+                
+                ${auditHtml}
+                
                 <div class="info-row">
                     <span class="info-label">${translations[currentLang]["js.label.detection_method"]}</span>
                     <span class="info-value method">${info.metodo}</span>
                 </div>
             </div>
+            
+            ${cloudflareHtml}
         </div>
     `;
 }
@@ -539,8 +606,8 @@ function inicializarBusquedaMasiva() {
 
         const procesarDominio = async (dom) => {
             try {
-                // Fetch API enviando idioma dinámico
-                const res = await fetch(`/api/check?domain=${encodeURIComponent(dom)}&dns_only=${dnsOnly}&lang=${currentLang}`);
+                // Fetch API enviando idioma dinámico y audit conditionally
+                const res = await fetch(`/api/check?domain=${encodeURIComponent(dom)}&dns_only=${dnsOnly}&lang=${currentLang}&audit=${!dnsOnly}`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
 

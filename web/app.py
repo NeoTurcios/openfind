@@ -77,7 +77,98 @@ def registrar_whois_servidor(domain, server=None):
     except Exception as e:
         return f"ERROR: {str(e)}"
 
-def chequear_dominio(domain, dns_only=False, lang='es'):
+def auditar_servidor(domain, ip, res_whois, lang='es'):
+    """
+    Realiza auditorías de red avanzadas:
+    - Extrae o consulta servidores de nombres (NS).
+    - Comprueba si cuenta con SSL activo (Puerto 443) y extrae la entidad emisora.
+    - Analiza el uso de Cloudflare (Orange Cloud proxied / Gray Cloud DNS-only).
+    """
+    ns_list = []
+    
+    # 1. Extraer registros NS desde el WHOIS
+    if res_whois:
+        for line in res_whois.split('\n'):
+            line_clean = line.strip().lower()
+            if line_clean.startswith("nserver:") or line_clean.startswith("name server:") or line_clean.startswith("nameserver:"):
+                parts = line_clean.split(':', 1)
+                if len(parts) > 1:
+                    ns_val = parts[1].strip()
+                    if ns_val.endswith('.'):
+                        ns_val = ns_val[:-1]
+                    if ns_val and ns_val not in ns_list:
+                        ns_list.append(ns_val)
+
+    # 2. Si no se hallaron NS, intentar mediante comando del sistema nslookup
+    if not ns_list:
+        try:
+            import subprocess
+            out = subprocess.check_output(["nslookup", "-type=ns", domain], stderr=subprocess.DEVNULL, timeout=1.5).decode('utf-8', errors='ignore')
+            for line in out.split('\n'):
+                line_clean = line.strip().lower()
+                if "nameserver =" in line_clean:
+                    ns_val = line_clean.split("nameserver =", 1)[1].strip()
+                    if ns_val.endswith('.'):
+                        ns_val = ns_val[:-1]
+                    if ns_val and ns_val not in ns_list:
+                        ns_list.append(ns_val)
+        except Exception:
+            pass
+
+    ssl_active = False
+    ssl_issuer = None
+    is_orange = False
+    is_gray = False
+
+    # 3. Comprobar headers HTTP y SSL activo
+    if ip:
+        # Petición HTTP rápida para detectar cabeceras de proxy de Cloudflare
+        try:
+            import urllib.request
+            req = urllib.request.Request(f"http://{domain}", headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=1.5) as response:
+                server = response.headers.get('Server', '').lower()
+                if "cloudflare" in server:
+                    is_orange = True
+        except Exception:
+            pass
+
+        # Socket SSL para comprobar el puerto 443
+        import ssl
+        try:
+            context = ssl.create_default_context()
+            with socket.create_connection((domain, 443), timeout=1.5) as sock:
+                with context.wrap_socket(sock, server_hostname=domain) as ssock:
+                    cert = ssock.getpeercert()
+                    ssl_active = True
+                    if cert and 'issuer' in cert:
+                        issuer = dict(x[0] for x in cert['issuer'])
+                        ssl_issuer = issuer.get('commonName', 'Unknown Issuer')
+                        if "cloudflare" in ssl_issuer.lower():
+                            is_orange = True
+        except Exception:
+            pass
+
+    # 4. Detección de Nube Gris (Usa DNS de Cloudflare pero no está proxificado)
+    has_cf_ns = any("cloudflare" in ns for ns in ns_list)
+    if has_cf_ns:
+        if not is_orange:
+            is_gray = True
+
+    cloudflare_status = "none"
+    if is_orange:
+        cloudflare_status = "orange"
+    elif is_gray:
+        cloudflare_status = "gray"
+
+    return {
+        "ns": ns_list,
+        "ssl_active": ssl_active,
+        "ssl_issuer": ssl_issuer,
+        "cloudflare": cloudflare_status
+    }
+
+def chequear_dominio(domain, dns_only=False, lang='es', realizar_auditoria=True):
     """Determina si un dominio está libre (disponible) o comprado (registrado)"""
     domain = domain.strip().lower()
     
@@ -95,7 +186,11 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
         "ip": None,
         "whois_server": None,
         "fecha_creacion": None,
-        "registrador": None
+        "registrador": None,
+        "ns": [],
+        "ssl_active": False,
+        "ssl_issuer": None,
+        "cloudflare": "none"
     }
 
     # 1. DNS Lookup Rápido
@@ -104,6 +199,11 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
         info["ip"] = ip
         info["metodo"] = "Resolución DNS" if lang == 'es' else "DNS Resolution"
         msg = "Registrado (Activo por DNS)" if lang == 'es' else "Registered (Active via DNS)"
+        
+        if realizar_auditoria:
+            audit = auditar_servidor(domain, ip, None, lang)
+            info.update(audit)
+            
         return "comprado", msg, info
     except socket.gaierror:
         if dns_only:
@@ -186,6 +286,11 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
 
     if esta_comprado or len(res) > 250:
         msg = "Registrado (Confirmado por WHOIS)" if lang == 'es' else "Registered (Confirmed by WHOIS)"
+        
+        if realizar_auditoria:
+            audit = auditar_servidor(domain, info["ip"], res, lang)
+            info.update(audit)
+            
         return "comprado", msg, info
     else:
         msg = "No se pudo determinar (Límite WHOIS / TLD no soportado)" if lang == 'es' else "Could not determine (WHOIS Limit / TLD not supported)"
@@ -205,6 +310,7 @@ def api_check():
     """Endpoint API para buscar un dominio individual"""
     domain = request.args.get('domain', '').strip()
     dns_only = request.args.get('dns_only', 'false').lower() == 'true'
+    realizar_auditoria = request.args.get('audit', 'true').lower() == 'true'
     lang = request.args.get('lang', 'es').strip().lower()
     
     if lang not in ['es', 'en']:
@@ -214,7 +320,7 @@ def api_check():
         err_msg = "Falta el parámetro 'domain'" if lang == 'es' else "Missing parameter 'domain'"
         return jsonify({"status": "error", "message": err_msg}), 400
         
-    estado, detalle, info = chequear_dominio(domain, dns_only=dns_only, lang=lang)
+    estado, detalle, info = chequear_dominio(domain, dns_only=dns_only, lang=lang, realizar_auditoria=realizar_auditoria)
     
     return jsonify({
         "status": "success",

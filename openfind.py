@@ -80,6 +80,15 @@ TEXTS = {
         "info_date": "• Fecha Creación:",
         "info_method": "• Método de detección:",
         "unknown_help": "Intenta buscarlo directamente en tu navegador web o proveedor DNS.",
+        "ind_prompt_audit": "👉 ¿Desea realizar una Auditoría de Servidor Avanzada (SSL/Cloudflare/NS)? (s/n) [Enter para Sí]: ",
+        "lote_prompt_audit": "👉 ¿Desea realizar una Auditoría de Servidor Avanzada (SSL/Cloudflare/NS) para los dominios del lote? (s/n) [Enter para Sí]: ",
+        "info_ssl_active": "• SSL Activo:",
+        "info_ssl_issuer": "• Emisor SSL:",
+        "info_ns": "• Servidores de Nombres (NS):",
+        "info_cloudflare": "• Estado Cloudflare:",
+        "cf_orange": "Nube Naranja (Proxificado)",
+        "cf_gray": "Nube Gris (Solo DNS)",
+        "cf_none": "No utiliza Cloudflare",
         
         # Consulta Lote
         "lote_title": "╔══[ OPCIÓN 2: BÚSQUEDA EN LOTE / MASIVA ]═══════════════════╗",
@@ -209,6 +218,15 @@ redistribución, siempre y cuando:
         "info_date": "• Creation Date:",
         "info_method": "• Detection method:",
         "unknown_help": "Try searching for it directly in your web browser or DNS provider.",
+        "ind_prompt_audit": "👉 Do you want to perform an Advanced Server Audit (SSL/Cloudflare/NS)? (y/n) [Enter for Yes]: ",
+        "lote_prompt_audit": "👉 Do you want to perform an Advanced Server Audit (SSL/Cloudflare/NS) for the batch domains? (y/n) [Enter for Yes]: ",
+        "info_ssl_active": "• Active SSL:",
+        "info_ssl_issuer": "• SSL Issuer:",
+        "info_ns": "• Name Servers (NS):",
+        "info_cloudflare": "• Cloudflare Status:",
+        "cf_orange": "Orange Cloud (Proxied)",
+        "cf_gray": "Gray Cloud (DNS-only)",
+        "cf_none": "Does not use Cloudflare",
         
         # Bulk Search
         "lote_title": "╔══[ OPTION 2: BULK / MASSIVE SEARCH ]══════════════════════╗",
@@ -404,7 +422,98 @@ def registrar_whois_servidor(domain, server=None):
     except Exception as e:
         return f"ERROR: {str(e)}"
 
-def chequear_dominio(domain, dns_only=False, lang='es'):
+def auditar_servidor(domain, ip, res_whois, lang='es'):
+    """
+    Realiza auditorías de red avanzadas:
+    - Extrae o consulta servidores de nombres (NS).
+    - Comprueba si cuenta con SSL activo (Puerto 443) y extrae la entidad emisora.
+    - Analiza el uso de Cloudflare (Orange Cloud proxied / Gray Cloud DNS-only).
+    """
+    ns_list = []
+    
+    # 1. Extraer registros NS desde el WHOIS
+    if res_whois:
+        for line in res_whois.split('\n'):
+            line_clean = line.strip().lower()
+            if line_clean.startswith("nserver:") or line_clean.startswith("name server:") or line_clean.startswith("nameserver:"):
+                parts = line_clean.split(':', 1)
+                if len(parts) > 1:
+                    ns_val = parts[1].strip()
+                    if ns_val.endswith('.'):
+                        ns_val = ns_val[:-1]
+                    if ns_val and ns_val not in ns_list:
+                        ns_list.append(ns_val)
+
+    # 2. Si no se hallaron NS, intentar mediante comando del sistema nslookup
+    if not ns_list:
+        try:
+            import subprocess
+            out = subprocess.check_output(["nslookup", "-type=ns", domain], stderr=subprocess.DEVNULL, timeout=1.5).decode('utf-8', errors='ignore')
+            for line in out.split('\n'):
+                line_clean = line.strip().lower()
+                if "nameserver =" in line_clean:
+                    ns_val = line_clean.split("nameserver =", 1)[1].strip()
+                    if ns_val.endswith('.'):
+                        ns_val = ns_val[:-1]
+                    if ns_val and ns_val not in ns_list:
+                        ns_list.append(ns_val)
+        except Exception:
+            pass
+
+    ssl_active = False
+    ssl_issuer = None
+    is_orange = False
+    is_gray = False
+
+    # 3. Comprobar headers HTTP y SSL activo
+    if ip:
+        # Petición HTTP rápida para detectar cabeceras de proxy de Cloudflare
+        try:
+            import urllib.request
+            req = urllib.request.Request(f"http://{domain}", headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=1.5) as response:
+                server = response.headers.get('Server', '').lower()
+                if "cloudflare" in server:
+                    is_orange = True
+        except Exception:
+            pass
+
+        # Socket SSL para comprobar el puerto 443
+        import ssl
+        try:
+            context = ssl.create_default_context()
+            with socket.create_connection((domain, 443), timeout=1.5) as sock:
+                with context.wrap_socket(sock, server_hostname=domain) as ssock:
+                    cert = ssock.getpeercert()
+                    ssl_active = True
+                    if cert and 'issuer' in cert:
+                        issuer = dict(x[0] for x in cert['issuer'])
+                        ssl_issuer = issuer.get('commonName', 'Unknown Issuer')
+                        if "cloudflare" in ssl_issuer.lower():
+                            is_orange = True
+        except Exception:
+            pass
+
+    # 4. Detección de Nube Gris (Usa DNS de Cloudflare pero no está proxificado)
+    has_cf_ns = any("cloudflare" in ns for ns in ns_list)
+    if has_cf_ns:
+        if not is_orange:
+            is_gray = True
+
+    cloudflare_status = "none"
+    if is_orange:
+        cloudflare_status = "orange"
+    elif is_gray:
+        cloudflare_status = "gray"
+
+    return {
+        "ns": ns_list,
+        "ssl_active": ssl_active,
+        "ssl_issuer": ssl_issuer,
+        "cloudflare": cloudflare_status
+    }
+
+def chequear_dominio(domain, dns_only=False, lang='es', realizar_auditoria=True):
     """
     Determina si un dominio está libre (disponible) o comprado (registrado).
     Retorna: (estado, detalle_localizado, info_adicional)
@@ -426,7 +535,11 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
         "ip": None,
         "whois_server": None,
         "fecha_creacion": None,
-        "registrador": None
+        "registrador": None,
+        "ns": [],
+        "ssl_active": False,
+        "ssl_issuer": None,
+        "cloudflare": "none"
     }
 
     # ----------------------------------------------------
@@ -437,6 +550,12 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
         info["ip"] = ip
         info["metodo"] = "Resolución DNS" if lang == 'es' else "DNS Resolution"
         msg = "COMPRADO / REGISTRADO (Activo por DNS)" if lang == 'es' else "REGISTERED (Active via DNS)"
+        
+        # Realizar auditorías avanzadas de red si está activo
+        if realizar_auditoria:
+            audit = auditar_servidor(domain, ip, None, lang)
+            info.update(audit)
+            
         return "comprado", msg, info
     except socket.gaierror:
         if dns_only:
@@ -525,6 +644,12 @@ def chequear_dominio(domain, dns_only=False, lang='es'):
 
     if esta_comprado or len(res) > 250:
         msg = "COMPRADO / REGISTRADO (Confirmado por WHOIS)" if lang == 'es' else "REGISTERED (Confirmed by WHOIS)"
+        
+        # Realizar auditorías avanzadas de red si está activo
+        if realizar_auditoria:
+            audit = auditar_servidor(domain, info["ip"], res, lang)
+            info.update(audit)
+            
         return "comprado", msg, info
     else:
         msg = "No se pudo determinar con certeza (Límite WHOIS / TLD no soportado)" if lang == 'es' else "Could not determine with certainty (WHOIS Limit / TLD not supported)"
@@ -564,10 +689,14 @@ def consulta_individual():
         input(f"\n{GRIS}{t['enter_prev_menu']}{FIN}")
         return
 
+    # Preguntar por la Auditoría de Servidor Avanzada (SSL/Cloudflare/NS)
+    auditar_input = input(f"{BLANCO}{t['ind_prompt_audit']}{FIN}").strip().lower()
+    realizar_auditoria = auditar_input not in ['n', 'no']
+
     print()
     mostrar_animacion_carga()
     
-    estado, detalle, info = chequear_dominio(dominio, lang=lang)
+    estado, detalle, info = chequear_dominio(dominio, lang=lang, realizar_auditoria=realizar_auditoria)
     
     print(f"{CIAN}{t['results_for']}{FIN} {NEGRITA}{BLANCO}{dominio.upper()}{FIN}\n")
     
@@ -588,6 +717,28 @@ def consulta_individual():
         if info["fecha_creacion"]:
             print(f"  {BLANCO}{t['info_date']}{FIN} {CIAN}{info['fecha_creacion']}{FIN}")
         print(f"  {BLANCO}{t['info_method']}{FIN} {GRIS}{info['metodo']}{FIN}")
+        
+        if realizar_auditoria:
+            # Estado SSL
+            ssl_status = f"{VERDE}ACTIVO / ACTIVE{FIN}" if info.get("ssl_active") else f"{ROJO}NO ACTIVO / INACTIVE{FIN}"
+            print(f"  {BLANCO}{t['info_ssl_active']}{FIN} {ssl_status}")
+            if info.get("ssl_issuer"):
+                print(f"  {BLANCO}{t['info_ssl_issuer']}{FIN} {CIAN}{info['ssl_issuer']}{FIN}")
+            
+            # Estado Cloudflare
+            cf_val = info.get("cloudflare", "none")
+            if cf_val == "orange":
+                cf_display = f"{AMARILLO}☁ {t['cf_orange']}{FIN}"
+            elif cf_val == "gray":
+                cf_display = f"{GRIS}☁ {t['cf_gray']}{FIN}"
+            else:
+                cf_display = f"{GRIS}{t['cf_none']}{FIN}"
+            print(f"  {BLANCO}{t['info_cloudflare']}{FIN} {cf_display}")
+            
+            # Servidores de Nombres
+            if info.get("ns"):
+                ns_str = ", ".join(info.get("ns", []))
+                print(f"  {BLANCO}{t['info_ns']}{FIN} {CIAN}{ns_str}{FIN}")
     elif estado == "invalido":
         print(f"  {ROJO}❌ {detalle}{FIN}")
     else:
@@ -733,6 +884,11 @@ def consulta_lote():
     guardar = input(f"\n{BLANCO}{t['save_prompt']}{FIN}").strip().lower()
     guardar_archivo = "resultados_dominios.txt" if guardar in ['s', 'y'] else None
     
+    realizar_auditoria = False
+    if not dns_only:
+        auditar_lote = input(f"{BLANCO}{t['lote_prompt_audit']}{FIN}").strip().lower()
+        realizar_auditoria = auditar_lote not in ['n', 'no']
+
     disponibles = []
     comprados = []
     desconocidos = []
@@ -763,7 +919,7 @@ def consulta_lote():
         estado, detalle, info = "desconocido", "Error", {}
         
         for r in range(reintentos):
-            estado, detalle, info = chequear_dominio(dom, dns_only=dns_only, lang=lang)
+            estado, detalle, info = chequear_dominio(dom, dns_only=dns_only, lang=lang, realizar_auditoria=realizar_auditoria)
             if estado != "desconocido" or dns_only:
                 break
             if r < reintentos - 1:
@@ -781,9 +937,20 @@ def consulta_lote():
         elif estado == "comprado":
             status_text = f"{ROJO}{t['gen_taken'].replace('❌ ', '').upper()}{FIN}"
             comprados.append(dom)
+            
+            # Formatear el detalle / método con indicación de Cloudflare si aplica
             metodo_text = info.get("metodo", "DNS")
+            cf_val = info.get("cloudflare", "none")
+            if realizar_auditoria and cf_val != "none":
+                if cf_val == "orange":
+                    metodo_text += f" {AMARILLO}(☁ Orange){FIN}"
+                elif cf_val == "gray":
+                    metodo_text += f" {GRIS}(☁ Gray){FIN}"
+            
             if guardar_archivo:
-                f_out.write(f"[❌] TAKEN: {dom:<32} | {detalle} | IP: {info.get('ip')}\n")
+                cf_str = f" | Cloudflare: {cf_val.upper()}" if (realizar_auditoria and cf_val != "none") else ""
+                ssl_str = " | SSL: YES" if (realizar_auditoria and info.get("ssl_active")) else " | SSL: NO"
+                f_out.write(f"[❌] TAKEN: {dom:<32} | {detalle} | IP: {info.get('ip')}{cf_str}{ssl_str}\n")
         else:
             status_text = f"{AMARILLO}{t['gen_unk'].replace('? ', '').upper()}{FIN}"
             desconocidos.append(dom)

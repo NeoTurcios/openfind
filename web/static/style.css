@@ -1136,3 +1136,168 @@ body {
     }
 }
 
+/* ==========================================================================
+   ADVANCED AUDIT TOGGLE AND GLOWING CLOUDFLARE SHIELDS
+   ========================================================================== */
+
+/* Container & Label */
+.audit-toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 600px;
+    margin: 16px auto 0 auto;
+    padding: 12px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+.audit-toggle-container:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(17, 25, 40, 0.7);
+}
+
+.audit-toggle-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.audit-toggle-label i {
+    color: var(--primary);
+    font-size: 16px;
+}
+
+/* Switch Button */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-muted);
+    transition: .4s;
+}
+
+.switch input:checked + .slider {
+    background-color: rgba(0, 230, 118, 0.1);
+    border-color: rgba(0, 230, 118, 0.3);
+}
+
+.switch input:checked + .slider:before {
+    background-color: var(--neon-green);
+    box-shadow: 0 0 8px var(--neon-green-glow);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Glowing Cloud Cards */
+.cf-badge-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+    margin-top: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+    animation: slideUp 0.4s ease-out;
+}
+
+.cf-badge-card.orange {
+    border-color: rgba(255, 143, 0, 0.35);
+    background: rgba(255, 143, 0, 0.04);
+    box-shadow: inset 0 0 20px rgba(255, 143, 0, 0.06);
+}
+
+.cf-badge-card.gray {
+    border-color: rgba(158, 158, 158, 0.35);
+    background: rgba(158, 158, 158, 0.04);
+    box-shadow: inset 0 0 20px rgba(158, 158, 158, 0.06);
+}
+
+.cf-cloud-icon {
+    font-size: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 10px currentColor);
+    animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+.cf-badge-card.orange .cf-cloud-icon {
+    color: #ff8f00;
+}
+
+.cf-badge-card.gray .cf-cloud-icon {
+    color: #9e9e9e;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px currentColor); opacity: 0.95; }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 16px currentColor); opacity: 1; }
+}
+
+.cf-info-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.cf-info-text h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-white);
+    margin-bottom: 4px;
+}
+
+.cf-info-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+

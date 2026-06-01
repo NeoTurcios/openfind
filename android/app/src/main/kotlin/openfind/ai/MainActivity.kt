@@ -101,6 +101,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rowRegistrar: LinearLayout
     private lateinit var rowCreated: LinearLayout
 
+    // Advanced Server Audit Views
+    private lateinit var swtAdvancedAudit: androidx.appcompat.widget.SwitchCompat
+    private lateinit var lblAuditSwitch: TextView
+    private lateinit var rowSsl: LinearLayout
+    private lateinit var lblSsl: TextView
+    private lateinit var txtSsl: TextView
+    private lateinit var rowSslIssuer: LinearLayout
+    private lateinit var lblSslIssuer: TextView
+    private lateinit var txtSslIssuer: TextView
+    private lateinit var rowCloudflare: LinearLayout
+    private lateinit var lblCloudflare: TextView
+    private lateinit var txtCloudflare: TextView
+    private lateinit var rowNs: LinearLayout
+    private lateinit var lblNs: TextView
+    private lateinit var txtNs: TextView
+    private lateinit var containerCloudflareBadge: LinearLayout
+    private lateinit var imgCloudflareIcon: ImageView
+    private lateinit var txtCloudflareBadgeTitle: TextView
+    private lateinit var txtCloudflareBadgeDesc: TextView
+
     // Search Result Action Toolbar
     private lateinit var btnActionSave: ImageButton
     private lateinit var btnActionPdf: ImageButton
@@ -163,7 +183,11 @@ class MainActivity : AppCompatActivity() {
         val ip: String?,
         val registrar: String?,
         val creationDate: String?,
-        val method: String
+        val method: String,
+        val sslActive: Boolean = false,
+        val sslIssuer: String? = null,
+        val cloudflare: String = "none",
+        val nsServers: List<String> = emptyList()
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -251,6 +275,26 @@ class MainActivity : AppCompatActivity() {
         rowIp = findViewById(R.id.rowIp)
         rowRegistrar = findViewById(R.id.rowRegistrar)
         rowCreated = findViewById(R.id.rowCreated)
+
+        // Bind Advanced Server Audit Views
+        swtAdvancedAudit = findViewById(R.id.swtAdvancedAudit)
+        lblAuditSwitch = findViewById(R.id.lblAuditSwitch)
+        rowSsl = findViewById(R.id.rowSsl)
+        lblSsl = findViewById(R.id.lblSsl)
+        txtSsl = findViewById(R.id.txtSsl)
+        rowSslIssuer = findViewById(R.id.rowSslIssuer)
+        lblSslIssuer = findViewById(R.id.lblSslIssuer)
+        txtSslIssuer = findViewById(R.id.txtSslIssuer)
+        rowCloudflare = findViewById(R.id.rowCloudflare)
+        lblCloudflare = findViewById(R.id.lblCloudflare)
+        txtCloudflare = findViewById(R.id.txtCloudflare)
+        rowNs = findViewById(R.id.rowNs)
+        lblNs = findViewById(R.id.lblNs)
+        txtNs = findViewById(R.id.txtNs)
+        containerCloudflareBadge = findViewById(R.id.containerCloudflareBadge)
+        imgCloudflareIcon = findViewById(R.id.imgCloudflareIcon)
+        txtCloudflareBadgeTitle = findViewById(R.id.txtCloudflareBadgeTitle)
+        txtCloudflareBadgeDesc = findViewById(R.id.txtCloudflareBadgeDesc)
 
         // Search Actions & Links
         btnActionSave = findViewById(R.id.btnActionSave)
@@ -493,6 +537,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrador:"
             lblCreationDate.text = "Fecha de Creación:"
             lblMethod.text = "Método de Detección:"
+            lblAuditSwitch.text = "Auditoría Avanzada (Cloudflare / SSL)"
             txtFooter.text = "Diseñado con amor y código abierto\nDesarrollado por neopunto.com\nContacto: hola@neopunto.com | Licencia No Comercial © 2026"
 
             // Panel Bulk
@@ -526,6 +571,7 @@ class MainActivity : AppCompatActivity() {
             lblRegistrar.text = "Registrar:"
             lblCreationDate.text = "Creation Date:"
             lblMethod.text = "Detection Method:"
+            lblAuditSwitch.text = "Advanced Audit (Cloudflare / SSL)"
             txtFooter.text = "Designed with love and open source\nDeveloped by neopunto.com\nContact: hola@neopunto.com | Non-Commercial License © 2026"
 
             // Panel Bulk
@@ -602,9 +648,10 @@ class MainActivity : AppCompatActivity() {
 
         // Avoid race condition / crash: capture currentLang on UI thread before background tasks
         val lang = currentLang
+        val doAudit = swtAdvancedAudit.isChecked
         Thread {
             try {
-                val result = performSingleLookup(domain, lang)
+                val result = performSingleLookup(domain, lang, doAudit)
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     txtLoading.visibility = View.GONE
@@ -627,7 +674,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun performSingleLookup(domain: String, lang: String): DomainResult {
+    private fun performSingleLookup(domain: String, lang: String, realizarAuditoria: Boolean = true): DomainResult {
         // 1. DNS Phase
         var ip: String? = null
         try {
@@ -638,7 +685,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (ip != null) {
-            return DomainResult(
+            val result = DomainResult(
                 domain = domain,
                 status = "comprado",
                 detail = if (lang == "es") "Registrado (Activo por DNS)" else "Registered (Active via DNS)",
@@ -647,6 +694,16 @@ class MainActivity : AppCompatActivity() {
                 creationDate = null,
                 method = if (lang == "es") "Resolución DNS" else "DNS Resolution"
             )
+            if (realizarAuditoria) {
+                val audit = auditarServidor(domain, ip, null)
+                return result.copy(
+                    sslActive = audit.getBoolean("ssl_active"),
+                    sslIssuer = audit.getString("ssl_issuer"),
+                    cloudflare = audit.getString("cloudflare", "none"),
+                    nsServers = audit.getStringArrayList("ns")?.toList() ?: emptyList()
+                )
+            }
+            return result
         }
 
         // 2. WHOIS Phase
@@ -781,7 +838,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (estaComprado || finalWhois.length > 250) {
-            return DomainResult(
+            val result = DomainResult(
                 domain = domain,
                 status = "comprado",
                 detail = if (lang == "es") "Registrado (Confirmado por WHOIS)" else "Registered (Confirmed by WHOIS)",
@@ -790,6 +847,16 @@ class MainActivity : AppCompatActivity() {
                 creationDate = fechaCreacion,
                 method = metodo
             )
+            if (realizarAuditoria) {
+                val audit = auditarServidor(domain, null, finalWhois)
+                return result.copy(
+                    sslActive = audit.getBoolean("ssl_active"),
+                    sslIssuer = audit.getString("ssl_issuer"),
+                    cloudflare = audit.getString("cloudflare", "none"),
+                    nsServers = audit.getStringArrayList("ns")?.toList() ?: emptyList()
+                )
+            }
+            return result
         } else {
             return DomainResult(
                 domain = domain,
@@ -801,6 +868,125 @@ class MainActivity : AppCompatActivity() {
                 method = metodo
             )
         }
+    }
+
+    private fun auditarServidor(domain: String, ip: String?, rawWhois: String?): Bundle {
+        val nsList = mutableListOf<String>()
+        
+        // 1. Extraer NS de WHOIS
+        if (!rawWhois.isNullOrEmpty()) {
+            val lines = rawWhois.split("\n")
+            for (line in lines) {
+                val lineClean = line.trim().lowercase(Locale.getDefault())
+                if (lineClean.startsWith("nserver:") || lineClean.startsWith("name server:") || lineClean.startsWith("nameserver:")) {
+                    val parts = lineClean.split(":", limit = 2)
+                    if (parts.size > 1) {
+                        var nsVal = parts[1].trim()
+                        if (nsVal.endsWith(".")) {
+                            nsVal = nsVal.dropLast(1)
+                        }
+                        if (nsVal.isNotEmpty() && !nsList.contains(nsVal)) {
+                            nsList.add(nsVal)
+                        }
+                    }
+                }
+            }
+        }
+
+        var sslActive = false
+        var sslIssuer: String? = null
+        var isOrange = false
+        var isGray = false
+
+        // Intentar DNS/HTTP/SSL auditoría
+        val hostIp = ip ?: try {
+            InetAddress.getByName(domain).hostAddress
+        } catch (e: Exception) {
+            null
+        }
+
+        if (hostIp != null) {
+            // Socket de red para HTTP e intentar conseguir Server header
+            try {
+                val socket = Socket()
+                socket.connect(java.net.InetSocketAddress(domain, 80), 1500)
+                socket.soTimeout = 1500
+                val out = PrintWriter(socket.getOutputStream(), true)
+                val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+                out.print("HEAD / HTTP/1.1\r\nHost: $domain\r\nUser-Agent: Mozilla/5.0\r\nConnection: close\r\n\r\n")
+                out.flush()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    if (line!!.lowercase(Locale.getDefault()).startsWith("server:")) {
+                        val serverVal = line!!.substringAfter(":").trim().lowercase(Locale.getDefault())
+                        if (serverVal.contains("cloudflare")) {
+                            isOrange = true
+                        }
+                        break
+                    }
+                }
+                socket.close()
+            } catch (e: Exception) {
+                // Ignore
+            }
+
+            // Socket SSL para puerto 443
+            try {
+                val sslSocketFactory = javax.net.ssl.SSLSocketFactory.getDefault()
+                val sslSocket = sslSocketFactory.createSocket()
+                sslSocket.connect(java.net.InetSocketAddress(domain, 443), 1500)
+                sslSocket.soTimeout = 1500
+                val ss = sslSocket as javax.net.ssl.SSLSocket
+                ss.startHandshake()
+                val session = ss.session
+                sslActive = true
+                
+                // Conseguir Issuer principal
+                val certs = session.peerCertificates
+                if (certs.isNotEmpty()) {
+                    val cert = certs[0] as java.security.cert.X509Certificate
+                    val issuerDN = cert.issuerDN.name
+                    // Parsear el CN del issuerDN
+                    var cn = "Unknown Issuer"
+                    val parts = issuerDN.split(",")
+                    for (part in parts) {
+                        if (part.trim().startsWith("CN=")) {
+                            cn = part.substringAfter("CN=").trim()
+                            break
+                        }
+                    }
+                    sslIssuer = cn
+                    if (cn.lowercase(Locale.getDefault()).contains("cloudflare")) {
+                        isOrange = true
+                    }
+                }
+                sslSocket.close()
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+
+        // 4. Detección de Nube Gris (Usa DNS de Cloudflare pero no está proxificado)
+        val hasCfNs = nsList.any { it.contains("cloudflare") }
+        if (hasCfNs) {
+            if (!isOrange) {
+                isGray = true
+            }
+        }
+
+        var cloudflareStatus = "none"
+        if (isOrange) {
+            cloudflareStatus = "orange"
+        } else if (isGray) {
+            cloudflareStatus = "gray"
+        }
+
+        val bundle = Bundle()
+        bundle.putStringArrayList("ns", ArrayList(nsList))
+        bundle.putBoolean("ssl_active", sslActive)
+        bundle.putString("ssl_issuer", sslIssuer)
+        bundle.putString("cloudflare", cloudflareStatus)
+        return bundle
     }
 
     private fun queryWhoisServer(domain: String, server: String): String {
@@ -907,6 +1093,91 @@ class MainActivity : AppCompatActivity() {
             txtCreationDate.text = result.creationDate
         } else {
             rowCreated.visibility = View.GONE
+        }
+
+        // ── Advanced Audit rows ──
+        val hasAuditData = result.sslActive || result.cloudflare != "none" || result.nsServers.isNotEmpty()
+
+        // SSL Active row
+        if (result.sslActive) {
+            rowSsl.visibility = View.VISIBLE
+            lblSsl.text = if (currentLang == "es") "SSL Activo:" else "SSL Active:"
+            txtSsl.text = if (currentLang == "es") "Activo" else "Active"
+            txtSsl.setTextColor(Color.parseColor("#00e676"))
+        } else if (hasAuditData) {
+            rowSsl.visibility = View.VISIBLE
+            lblSsl.text = if (currentLang == "es") "SSL Activo:" else "SSL Active:"
+            txtSsl.text = if (currentLang == "es") "Inactivo" else "Inactive"
+            txtSsl.setTextColor(Color.parseColor("#ef4444"))
+        } else {
+            rowSsl.visibility = View.GONE
+        }
+
+        // SSL Issuer row
+        if (!result.sslIssuer.isNullOrEmpty()) {
+            rowSslIssuer.visibility = View.VISIBLE
+            lblSslIssuer.text = if (currentLang == "es") "Emisor SSL:" else "SSL Issuer:"
+            txtSslIssuer.text = result.sslIssuer
+        } else {
+            rowSslIssuer.visibility = View.GONE
+        }
+
+        // Cloudflare row
+        if (result.cloudflare != "none") {
+            rowCloudflare.visibility = View.VISIBLE
+            lblCloudflare.text = if (currentLang == "es") "Estado Cloudflare:" else "Cloudflare Status:"
+            when (result.cloudflare) {
+                "orange" -> {
+                    txtCloudflare.text = if (currentLang == "es") "Nube Naranja (Proxy activo)" else "Orange Cloud (Proxy active)"
+                    txtCloudflare.setTextColor(Color.parseColor("#F97316"))
+                }
+                "gray" -> {
+                    txtCloudflare.text = if (currentLang == "es") "Nube Gris (Solo DNS)" else "Gray Cloud (DNS only)"
+                    txtCloudflare.setTextColor(Color.parseColor("#9CA3AF"))
+                }
+                else -> {
+                    txtCloudflare.text = if (currentLang == "es") "Detectado" else "Detected"
+                    txtCloudflare.setTextColor(Color.parseColor("#F97316"))
+                }
+            }
+        } else {
+            rowCloudflare.visibility = View.GONE
+        }
+
+        // Name Servers row
+        if (result.nsServers.isNotEmpty()) {
+            rowNs.visibility = View.VISIBLE
+            lblNs.text = if (currentLang == "es") "Servidores NS:" else "Name Servers:"
+            txtNs.text = result.nsServers.take(3).joinToString(", ")
+        } else {
+            rowNs.visibility = View.GONE
+        }
+
+        // Cloudflare Shield Glowing Badge Card
+        if (result.cloudflare != "none") {
+            containerCloudflareBadge.visibility = View.VISIBLE
+            when (result.cloudflare) {
+                "orange" -> {
+                    imgCloudflareIcon.setColorFilter(Color.parseColor("#F97316"))
+                    txtCloudflareBadgeTitle.text = if (currentLang == "es") "Cloudflare Detectado" else "Cloudflare Detected"
+                    txtCloudflareBadgeTitle.setTextColor(Color.parseColor("#F97316"))
+                    txtCloudflareBadgeDesc.text = if (currentLang == "es")
+                        "El trafico esta cifrado y protegido por la Nube Naranja de Cloudflare."
+                    else
+                        "Traffic is encrypted and protected by Cloudflare Orange Cloud proxy."
+                }
+                "gray" -> {
+                    imgCloudflareIcon.setColorFilter(Color.parseColor("#9CA3AF"))
+                    txtCloudflareBadgeTitle.text = if (currentLang == "es") "Cloudflare DNS (Nube Gris)" else "Cloudflare DNS (Gray Cloud)"
+                    txtCloudflareBadgeTitle.setTextColor(Color.parseColor("#9CA3AF"))
+                    txtCloudflareBadgeDesc.text = if (currentLang == "es")
+                        "Usa Cloudflare para DNS pero el proxy de proteccion no esta activo."
+                    else
+                        "Uses Cloudflare for DNS but the protection proxy is not active."
+                }
+            }
+        } else {
+            containerCloudflareBadge.visibility = View.GONE
         }
     }
 
@@ -1639,6 +1910,25 @@ class MainActivity : AppCompatActivity() {
             drawTableRow("Registrar:", res.registrar ?: "N/A (Not returned or available)")
             drawTableRow("Creation Date:", res.creationDate ?: "N/A (Not returned or available)")
 
+            // Audit rows in PDF
+            if (res.sslActive) {
+                drawTableRow("SSL Status:", "Active")
+                if (!res.sslIssuer.isNullOrEmpty()) {
+                    drawTableRow("SSL Issuer:", res.sslIssuer)
+                }
+            }
+            if (res.cloudflare != "none") {
+                val cfLabel = when (res.cloudflare) {
+                    "orange" -> "Orange Cloud (Proxy Active)"
+                    "gray" -> "Gray Cloud (DNS Only)"
+                    else -> "Detected"
+                }
+                drawTableRow("Cloudflare:", cfLabel)
+            }
+            if (res.nsServers.isNotEmpty()) {
+                drawTableRow("Name Servers:", res.nsServers.take(3).joinToString(", "))
+            }
+
             // 4. suggested provider section (Clean and corporate information)
             canvas.drawText("3. Intelligent Branding Evaluation", 40f, y + 20f, paintSection)
             canvas.drawLine(40f, y + 30f, 555f, y + 30f, paintDivider)
@@ -1701,24 +1991,45 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareDomainDetails(res: DomainResult) {
+        val auditLines = StringBuilder()
+        if (res.sslActive) {
+            auditLines.append("SSL: Active")
+            if (!res.sslIssuer.isNullOrEmpty()) auditLines.append(" (${res.sslIssuer})")
+            auditLines.append("\n")
+        }
+        if (res.cloudflare != "none") {
+            val cfLabel = when (res.cloudflare) {
+                "orange" -> "Orange Cloud"
+                "gray" -> "Gray Cloud (DNS only)"
+                else -> "Detected"
+            }
+            auditLines.append("Cloudflare: $cfLabel\n")
+        }
+        if (res.nsServers.isNotEmpty()) {
+            auditLines.append("NS: ${res.nsServers.take(3).joinToString(", ")}\n")
+        }
+        val auditBlock = if (auditLines.isNotEmpty()) auditLines.toString() else ""
+
         val shareText = if (currentLang == "es") {
-            "🔍 Análisis de dominio OpenFind AI:\n\n" +
+            "OpenFind AI - Analisis de dominio:\n\n" +
             "Dominio: ${res.domain.uppercase(Locale.getDefault())}\n" +
-            "Estado: ${if (res.status == "disponible") "¡DISPONIBLE (LIBRE)!" else "Registrado/Ocupado"}\n" +
+            "Estado: ${if (res.status == "disponible") "DISPONIBLE (LIBRE)!" else "Registrado/Ocupado"}\n" +
             "IP: ${res.ip ?: "Ninguna"}\n" +
             "Registrador: ${res.registrar ?: "N/A"}\n" +
-            "Fecha Creación: ${res.creationDate ?: "N/A"}\n" +
-            "Detección: ${res.method}\n\n" +
-            "¡Busca dominios gratis con la app OpenFind AI de neopunto.com!"
+            "Fecha Creacion: ${res.creationDate ?: "N/A"}\n" +
+            "Deteccion: ${res.method}\n" +
+            (if (auditBlock.isNotEmpty()) "\n$auditBlock" else "") +
+            "\nBusca dominios gratis con la app OpenFind AI de neopunto.com!"
         } else {
-            "🔍 OpenFind AI Domain Analysis:\n\n" +
+            "OpenFind AI - Domain Analysis:\n\n" +
             "Domain: ${res.domain.uppercase(Locale.getDefault())}\n" +
             "Status: ${if (res.status == "disponible") "AVAILABLE (FREE)!" else "Taken/Registered"}\n" +
             "IP: ${res.ip ?: "None"}\n" +
             "Registrar: ${res.registrar ?: "N/A"}\n" +
             "Created: ${res.creationDate ?: "N/A"}\n" +
-            "Method: ${res.method}\n\n" +
-            "Check domains for free with OpenFind AI Android from neopunto.com!"
+            "Method: ${res.method}\n" +
+            (if (auditBlock.isNotEmpty()) "\n$auditBlock" else "") +
+            "\nCheck domains for free with OpenFind AI Android from neopunto.com!"
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -2048,6 +2359,55 @@ class MainActivity : AppCompatActivity() {
             }
             tagLayout.addView(txtRecommend)
             row.addView(tagLayout)
+        }
+
+        // Cloudflare indicator in bulk results
+        if (res.cloudflare != "none") {
+            val cfLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                params.setMargins(0, 8, 0, 0)
+                layoutParams = params
+            }
+
+            val imgCf = ImageView(this).apply {
+                setImageResource(R.drawable.ic_cloud)
+                val cfColor = if (res.cloudflare == "orange") Color.parseColor("#F97316") else Color.parseColor("#9CA3AF")
+                setColorFilter(cfColor)
+                val params = LinearLayout.LayoutParams(28, 28)
+                params.setMargins(0, 0, 8, 0)
+                layoutParams = params
+            }
+
+            val txtCf = TextView(this).apply {
+                text = if (res.cloudflare == "orange") {
+                    if (currentLang == "es") "Cloudflare Nube Naranja" else "Cloudflare Orange Cloud"
+                } else {
+                    if (currentLang == "es") "Cloudflare DNS (Gris)" else "Cloudflare DNS (Gray)"
+                }
+                setTextColor(if (res.cloudflare == "orange") Color.parseColor("#F97316") else Color.parseColor("#9CA3AF"))
+                textSize = 11f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            }
+
+            cfLayout.addView(imgCf)
+            cfLayout.addView(txtCf)
+
+            if (res.sslActive) {
+                val sslTag = TextView(this).apply {
+                    text = "  SSL"
+                    setTextColor(Color.parseColor("#00e676"))
+                    textSize = 10f
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                }
+                cfLayout.addView(sslTag)
+            }
+
+            row.addView(cfLayout)
         }
 
         containerBulkResults.addView(row)

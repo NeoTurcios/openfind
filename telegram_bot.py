@@ -99,6 +99,10 @@ BOT_TEXTS = {
     "card_registrar": "Registrar",
     "card_created": "Created",
     "card_method": "Method",
+    "card_ssl": "Active SSL",
+    "card_ssl_issuer": "SSL Issuer",
+    "card_cloudflare": "Cloudflare Status",
+    "card_ns": "Name Servers",
     "card_footer": "Verified with OpenFind AI | GitHub: github.com/NeoTurcios/liberdom"
 }
 
@@ -196,8 +200,32 @@ def formatear_tarjeta_html(domain, estado, detalle, info):
         msg += f"• {t['card_registrar']}: <code>{info['registrador']}</code>\n"
     if info.get("fecha_creacion"):
         msg += f"• {t['card_created']}: <code>{info['fecha_creacion']}</code>\n"
-    msg += f"• {t['card_method']}: <code>{info['metodo']}</code>\n\n"
-    msg += f"🔎 <i>{t['card_footer']}</i>"
+    msg += f"• {t['card_method']}: <code>{info['metodo']}</code>\n"
+    
+    # Agregar auditoría avanzada para dominios registrados
+    if estado == "comprado":
+        # SSL
+        ssl_val = "🟢 Active" if info.get("ssl_active") else "🔴 Inactive"
+        msg += f"• {t['card_ssl']}: <code>{ssl_val}</code>\n"
+        if info.get("ssl_issuer"):
+            msg += f"• {t['card_ssl_issuer']}: <code>{info['ssl_issuer']}</code>\n"
+        
+        # Cloudflare Status
+        cf_val = info.get("cloudflare", "none")
+        if cf_val == "orange":
+            cf_status = "🟠 Orange Cloud (Proxied) ☁️"
+        elif cf_val == "gray":
+            cf_status = "⚪️ Gray Cloud (DNS-only) ☁️"
+        else:
+            cf_status = "❌ None"
+        msg += f"• {t['card_cloudflare']}: <code>{cf_status}</code>\n"
+        
+        # Name Servers (NS)
+        if info.get("ns"):
+            ns_str = ", ".join(info["ns"])
+            msg += f"• {t['card_ns']}: <code>{ns_str}</code>\n"
+            
+    msg += f"\n🔎 <i>{t['card_footer']}</i>"
     return msg
 
 def procesar_mensaje(bot, msg):
