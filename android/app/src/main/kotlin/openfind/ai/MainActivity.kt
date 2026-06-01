@@ -990,7 +990,7 @@ class MainActivity : AppCompatActivity() {
 
         // 3. ADVANCED MEMORABILITY (Semantics, rhythmic balance, special chars)
         // Check for premium startup keywords (semantic mapping)
-        val cognitiveWords = listOf("ai", "bot", "neo", "intel", "mind", "galaxy", "yi", "tech", "dev", "labs", "hub", "nexus", "core", "app", "flow", "think", "deep", "learn", "cloud", "net", "open", "find")
+        val cognitiveWords = listOf("ai", "bot", "neo", "intel", "mind", "galaxy", "yi", "tech", "dev", "labs", "hub", "nexus", "core", "app", "flow", "think", "deep", "learn", "cloud", "net", "open", "find", "cyber", "data", "meta", "smart", "zen", "pixel", "layer", "matrix", "vertex", "vector", "crypt")
         var matchedKeyword = ""
         for (word in cognitiveWords) {
             if (nameOnly.contains(word)) {
@@ -1068,7 +1068,7 @@ class MainActivity : AppCompatActivity() {
         finalScore = Math.max(1.0, Math.min(10.0, finalScore))
 
         // Advanced AI detailed feedback based on segmented scores
-        val feedback = StringBuilder("🤖 ")
+        val feedback = StringBuilder("")
         if (currentLang == "es") {
             when {
                 finalScore >= 9.0 -> {
@@ -2038,9 +2038,9 @@ class MainActivity : AppCompatActivity() {
             val txtRecommend = TextView(this).apply {
                 val (score, _) = evaluateDomainHeuristically(res.domain)
                 text = if (currentLang == "es") {
-                    "🤖 Agente: Altamente recomendado (Score: $score/10)"
+                    "Agente IA: Altamente recomendado (Score: $score/10)"
                 } else {
-                    "🤖 Agent: Highly recommended (Score: $score/10)"
+                    "AI Agent: Highly recommended (Score: $score/10)"
                 }
                 setTextColor(Color.parseColor("#00e676"))
                 textSize = 11f
@@ -2166,9 +2166,9 @@ class MainActivity : AppCompatActivity() {
                         val txtBadge = TextView(this@MainActivity).apply {
                             text = if (result.status == "disponible") {
                                 if (currentLang == "es") {
-                                    if (score >= 8.5) "🤖 Yo te recomiendo esta ($score)" else "Libre ($score)"
+                                    if (score >= 8.5) "Recomendado por Agente ($score)" else "Libre ($score)"
                                 } else {
-                                    if (score >= 8.5) "🤖 Agent Recommended ($score)" else "Free ($score)"
+                                    if (score >= 8.5) "Agent Recommended ($score)" else "Free ($score)"
                                 }
                             } else {
                                 if (currentLang == "es") "Ocupado" else "Taken"
