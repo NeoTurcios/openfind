@@ -755,7 +755,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         var estaComprado = false
-        for (pat patronesComprado) {
+        for (pat in patronesComprado) {
             if (finalLower.contains(pat)) {
                 estaComprado = true
                 break
@@ -1177,7 +1177,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 setTextColor(Color.parseColor("#9CA3AF"))
                 textSize = 13f
-                lineSpacingMultiplier = 1.2f
+                setLineSpacing(0f, 1.2f)
                 gravity = android.view.Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
