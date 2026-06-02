@@ -11,7 +11,7 @@ import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 
 class DomainRepository(
-    private val savedDao: SavedDao
+    val savedDao: SavedDao
 ) {
     suspend fun checkDomain(domain: String, doAudit: Boolean = false): DomainResult {
         val clean = domain.lowercase()
