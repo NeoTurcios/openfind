@@ -64,6 +64,10 @@ fun SearchScreen(
     val state by viewModel.state.collectAsState()
     val lang = LocalLanguage.current
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshSettings()
+    }
+
     LaunchedEffect(navController) {
         val prefillDomain = navController
             ?.currentBackStackEntry

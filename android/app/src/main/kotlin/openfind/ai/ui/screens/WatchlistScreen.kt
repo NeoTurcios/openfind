@@ -46,6 +46,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -81,7 +88,21 @@ fun WatchlistScreen(
     val state by viewModel.state.collectAsState()
     val lang = LocalLanguage.current
     val settingsRepository: SettingsRepository = koinInject()
+    val context = LocalContext.current
     var showAddDialog by remember { mutableStateOf(false) }
+    var pendingDomainForNotification by remember { mutableStateOf<String?>(null) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                pendingDomainForNotification?.let { domain ->
+                    viewModel.onToggleNotify(domain)
+                }
+            }
+            pendingDomainForNotification = null
+        }
+    )
 
     val availableIntervals = listOf(6, 12, 24, 48)
 
@@ -249,7 +270,26 @@ fun WatchlistScreen(
                         WatchlistItemCard(
                             item = item,
                             onRemove = { viewModel.onRemove(item.domain) },
-                            onToggleNotify = { viewModel.onToggleNotify(item.domain) },
+                            onToggleNotify = {
+                                if (!item.notifyEnabled) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        val hasPermission = ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.POST_NOTIFICATIONS
+                                        ) == PackageManager.PERMISSION_GRANTED
+                                        if (hasPermission) {
+                                            viewModel.onToggleNotify(item.domain)
+                                        } else {
+                                            pendingDomainForNotification = item.domain
+                                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                    } else {
+                                        viewModel.onToggleNotify(item.domain)
+                                    }
+                                } else {
+                                    viewModel.onToggleNotify(item.domain)
+                                }
+                            },
                             onChangeInterval = { hours ->
                                 viewModel.onChangeInterval(item.domain, hours)
                             }

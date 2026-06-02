@@ -42,6 +42,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,7 +82,19 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val lang = LocalLanguage.current
+    val context = LocalContext.current
     var showAiDialog by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.onToggleNotifications(true)
+            } else {
+                viewModel.onToggleNotifications(false)
+            }
+        }
+    )
 
     if (showAiDialog) {
         AlertDialog(
@@ -333,7 +352,25 @@ fun SettingsScreen(
                         )
                         Switch(
                             checked = state.notificationsEnabled,
-                            onCheckedChange = { viewModel.onToggleNotifications(it) },
+                            onCheckedChange = { enabled ->
+                                if (enabled) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        val hasPermission = ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.POST_NOTIFICATIONS
+                                        ) == PackageManager.PERMISSION_GRANTED
+                                        if (hasPermission) {
+                                            viewModel.onToggleNotifications(true)
+                                        } else {
+                                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                    } else {
+                                        viewModel.onToggleNotifications(true)
+                                    }
+                                } else {
+                                    viewModel.onToggleNotifications(false)
+                                }
+                            },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
                                 checkedTrackColor = NeonGreen,

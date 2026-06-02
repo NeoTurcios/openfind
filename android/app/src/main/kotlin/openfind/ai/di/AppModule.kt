@@ -28,7 +28,7 @@ val appModule = module {
     single { DomainRepository(get()) }
     single { WatchlistRepository(get()) }
 
-    viewModel { SearchViewModel(androidApplication(), get(), get()) }
+    viewModel { SearchViewModel(androidApplication(), get(), get(), get()) }
     viewModel { BulkViewModel(androidApplication(), get()) }
     viewModel { GeneratorViewModel(get()) }
     viewModel { LibraryViewModel(androidApplication(), get(), get()) }

@@ -42,7 +42,8 @@ data class SearchState(
 class SearchViewModel(
     application: Application,
     private val domainRepository: DomainRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val historyDao: openfind.ai.data.local.dao.HistoryDao
 ) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow(SearchState(
@@ -50,6 +51,13 @@ class SearchViewModel(
         language = settingsRepository.language
     ))
     val state: StateFlow<SearchState> = _state.asStateFlow()
+
+    fun refreshSettings() {
+        _state.update { it.copy(
+            isAiEnabled = settingsRepository.isAiEnabled,
+            language = settingsRepository.language
+        ) }
+    }
 
     fun onDomainInputChange(input: String) {
         _state.update { it.copy(domainInput = input) }
@@ -83,7 +91,8 @@ class SearchViewModel(
             return
         }
 
-        _state.update { it.copy(isLoading = true, error = null, result = null) }
+        val isAiNow = settingsRepository.isAiEnabled
+        _state.update { it.copy(isLoading = true, error = null, result = null, isAiEnabled = isAiNow) }
 
         viewModelScope.launch {
             try {
@@ -91,7 +100,7 @@ class SearchViewModel(
                     domainRepository.checkDomain(clean, _state.value.isAuditEnabled)
                 }
 
-                val enrichedResult = if (_state.value.isAiEnabled && result.status == "available") {
+                val enrichedResult = if (isAiNow && result.status == "available") {
                     val (score, feedback) = domainRepository.evaluateBrandHeuristic(result.domain)
                     result.copy(brandScore = score, brandFeedback = feedback)
                 } else {
@@ -100,6 +109,24 @@ class SearchViewModel(
 
                 val isSaved = withContext(Dispatchers.IO) {
                     domainRepository.savedDao.getByDomain(enrichedResult.domain) != null
+                }
+
+                withContext(Dispatchers.IO) {
+                    historyDao.insert(
+                        openfind.ai.data.local.entity.HistoryEntity(
+                            domain = enrichedResult.domain,
+                            status = enrichedResult.status,
+                            detail = enrichedResult.detail,
+                            method = enrichedResult.method,
+                            ip = enrichedResult.ip,
+                            registrar = enrichedResult.registrar,
+                            creationDate = enrichedResult.creationDate,
+                            sslActive = enrichedResult.sslActive,
+                            sslIssuer = enrichedResult.sslIssuer,
+                            cloudflare = enrichedResult.cloudflare,
+                            nsServers = enrichedResult.nsServers.joinToString(",")
+                        )
+                    )
                 }
 
                 _state.update {

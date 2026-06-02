@@ -18,9 +18,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import openfind.ai.ui.theme.Purple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -124,8 +126,54 @@ fun DomainResultCard(
             }
 
             if (isAiEnabled && result.brandScore != null) {
-                Spacer(Modifier.height(8.dp))
-                AIScoreBadge(score = result.brandScore)
+                Spacer(Modifier.height(12.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Purple.copy(alpha = 0.08f))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Psychology,
+                                contentDescription = null,
+                                tint = Purple,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = Translations.string("brand_title", lang),
+                                color = White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.weight(1f))
+                            AIScoreBadge(score = result.brandScore)
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        
+                        val displayFeedback = if (lang == "es") {
+                            when {
+                                result.brandScore >= 9.0f -> "Recomendación premium. Excelente pronunciabilidad y recordabilidad (Nivel S)."
+                                result.brandScore >= 7.5f -> "Muy buena opción de marca. Viabilidad estimada superior al 85%."
+                                result.brandScore >= 5.5f -> "Comercialmente aceptable, pero sugerimos buscar alternativas más pegadizas."
+                                else -> "Nombre complejo para marca. Sugerimos usar el generador para mejores opciones."
+                            }
+                        } else {
+                            result.brandFeedback ?: ""
+                        }
+                        
+                        Text(
+                            text = displayFeedback,
+                            color = TextPrimary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(8.dp))
