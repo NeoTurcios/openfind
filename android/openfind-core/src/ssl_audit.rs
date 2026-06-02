@@ -1,59 +1,24 @@
-use crate::dns::{http_get_header, tls_connect};
-use crate::error::SslError;
-
-/// Result of a server audit.
 #[derive(Debug, Clone)]
 pub struct AuditResult {
     pub ssl_active: bool,
     pub ssl_issuer: Option<String>,
-    pub cloudflare_mode: String,   // "orange", "gray", "none"
+    pub cloudflare_mode: String,
     pub ns_servers: Vec<String>,
 }
 
-/// Audit a domain's server: extract NS from WHOIS, check SSL, detect Cloudflare.
-pub fn audit_server(domain: &str, _ip: Option<&str>, raw_whois: Option<&str>) -> AuditResult {
-    let mut ns_servers = Vec::new();
-
-    if let Some(whois) = raw_whois {
-        ns_servers = extract_nameservers(whois);
-    }
-
-    let mut ssl_active = false;
-    let mut ssl_issuer: Option<String> = None;
-    let mut is_orange = false;
-    let mut is_gray = false;
-
-    match http_get_header(domain) {
-        Ok(response) => {
-            let lower = response.to_lowercase();
-            if lower.contains("server:") && lower.contains("cloudflare") {
-                is_orange = true;
-            }
-        }
-        Err(_) => {}
-    }
-
-    match tls_connect(domain) {
-        Ok((issuer, _cn)) => {
-            ssl_active = true;
-            if issuer.to_lowercase().contains("cloudflare") {
-                is_orange = true;
-            }
-            ssl_issuer = Some(issuer);
-        }
-        Err(_) => {}
-    }
+pub fn audit_server(_domain: &str, _ip: Option<&str>, raw_whois: Option<&str>) -> AuditResult {
+    let ns_servers = if let Some(whois) = raw_whois {
+        extract_nameservers(whois)
+    } else {
+        Vec::new()
+    };
 
     let has_cf_ns = ns_servers.iter().any(|ns| ns.to_lowercase().contains("cloudflare"));
-    if has_cf_ns && !is_orange {
-        is_gray = true;
-    }
-
-    let cloudflare = if is_orange { "orange" } else if is_gray { "gray" } else { "none" };
+    let cloudflare = if has_cf_ns { "gray" } else { "none" };
 
     AuditResult {
-        ssl_active,
-        ssl_issuer,
+        ssl_active: false,
+        ssl_issuer: None,
         cloudflare_mode: cloudflare.to_string(),
         ns_servers,
     }

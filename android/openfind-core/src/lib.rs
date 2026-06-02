@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::sync::OnceLock;
-
 pub mod dns;
 pub mod whois;
 pub mod ssl_audit;
@@ -18,7 +15,7 @@ pub use brand_eval::evaluate_brand;
 #[derive(Debug, Clone)]
 pub struct DomainResult {
     pub domain: String,
-    pub status: String,         // "available", "taken", "unknown"
+    pub status: String,
     pub detail: String,
     pub ip: Option<String>,
     pub registrar: Option<String>,
@@ -26,7 +23,7 @@ pub struct DomainResult {
     pub method: String,
     pub ssl_active: bool,
     pub ssl_issuer: Option<String>,
-    pub cloudflare: String,     // "orange", "gray", "none"
+    pub cloudflare: String,
     pub ns_servers: Vec<String>,
     pub brand_score: Option<f32>,
     pub brand_feedback: Option<String>,
@@ -74,17 +71,15 @@ pub fn check_domain(domain: &str, do_audit: bool) -> DomainResult {
 
             if do_audit {
                 let audit = audit_server(&clean, Some(&ip), None);
-                result.ssl_active = audit.ssl_active;
-                result.ssl_issuer = audit.ssl_issuer;
                 result.cloudflare = audit.cloudflare_mode;
-                result.ns_servers = audit.ns_servers.clone();
+                result.ns_servers = audit.ns_servers;
             }
 
             result
         }
         None => {
             let tld = clean.split('.').last().unwrap_or("");
-            let server = TLD_SERVERS.get(tld).copied().unwrap_or("whois.iana.org");
+            let server = get_whois_server(tld);
 
             let raw_whois = query_whois(&clean, server);
             if raw_whois.starts_with("ERROR:") {
@@ -105,7 +100,7 @@ pub fn check_domain(domain: &str, do_audit: bool) -> DomainResult {
                 };
             }
 
-            let (mut final_whois, _refer) = handle_referral(&clean, &raw_whois, &raw_whois);
+            let final_whois = handle_referral(&clean, &raw_whois);
             let whois_data = parse_whois(&final_whois, tld);
 
             match whois_data.status.as_str() {
@@ -143,10 +138,8 @@ pub fn check_domain(domain: &str, do_audit: bool) -> DomainResult {
 
                     if do_audit {
                         let audit = audit_server(&clean, None, Some(&final_whois));
-                        result.ssl_active = audit.ssl_active;
-                        result.ssl_issuer = audit.ssl_issuer;
                         result.cloudflare = audit.cloudflare_mode;
-                        result.ns_servers = audit.ns_servers.clone();
+                        result.ns_servers = audit.ns_servers;
                     }
 
                     result
@@ -171,65 +164,63 @@ pub fn check_domain(domain: &str, do_audit: bool) -> DomainResult {
     }
 }
 
-fn handle_referral(domain: &str, raw: &str, original: &str) -> (String, Option<String>) {
+fn handle_referral(domain: &str, raw: &str) -> String {
     let lower = raw.to_lowercase();
-    if let Some(line) = lower.lines().find(|l| l.trim().starts_with("refer:")) {
-        let refer = line.split(':').nth(1).map(|s| s.trim().to_string());
-        if let Some(ref refer_server) = refer {
-            if !refer_server.is_empty() && refer_server != "whois.iana.org" {
-                let redirect = query_whois(domain, refer_server);
-                if !redirect.starts_with("ERROR:") {
-                    return (redirect, refer);
+    for line in lower.lines() {
+        if line.trim().starts_with("refer:") {
+            let refer = line.split(':').nth(1).map(|s| s.trim());
+            if let Some(ref refer_server) = refer {
+                if !refer_server.is_empty() && *refer_server != "whois.iana.org" {
+                    let redirect = query_whois(domain, refer_server);
+                    if !redirect.starts_with("ERROR:") {
+                        return redirect;
+                    }
                 }
             }
+            break;
         }
     }
-    (original.to_string(), None)
+    raw.to_string()
 }
 
-static TLD_SERVERS: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-
-fn get_or_init_tld_servers() -> &'static HashMap<&'static str, &'static str> {
-    TLD_SERVERS.get_or_init(|| {
-        HashMap::from([
-            ("com", "whois.verisign-grs.com"), ("net", "whois.verisign-grs.com"),
-            ("org", "whois.pir.org"), ("info", "whois.afilias.net"), ("biz", "whois.nic.biz"),
-            ("io", "whois.nic.io"), ("co", "whois.nic.co"), ("me", "whois.nic.me"),
-            ("es", "whois.nic.es"), ("mx", "whois.nic.mx"), ("cl", "whois.nic.cl"),
-            ("ar", "whois.nic.ar"), ("pe", "kero.yachay.pe"), ("us", "whois.nic.us"),
-            ("la", "whois.nic.la"), ("tv", "whois.nic.tv"), ("cc", "whois.nic.cc"),
-            ("br", "whois.registro.br"), ("ru", "whois.tcinet.ru"), ("uk", "whois.nic.uk"),
-            ("fr", "whois.nic.fr"), ("de", "whois.denic.de"), ("it", "whois.nic.it"),
-            ("nl", "whois.domain-registry.nl"), ("cn", "whois.cnnic.cn"), ("in", "whois.registry.in"),
-            ("to", "whois.tonic.to"), ("eu", "whois.eu"), ("at", "whois.nic.at"),
-            ("be", "whois.dns.be"), ("ca", "whois.cira.ca"), ("ch", "whois.nic.ch"),
-            ("dk", "whois.dk-hostmaster.dk"), ("fi", "whois.fi"), ("gr", "whois.ics.forth.gr"),
-            ("hu", "whois.nic.hu"), ("ie", "whois.domainregistry.ie"), ("il", "whois.isoc.org.il"),
-            ("jp", "whois.jprs.jp"), ("kr", "whois.kr"), ("lt", "whois.domreg.lt"),
-            ("lv", "whois.nic.lv"), ("no", "whois.norid.no"), ("nz", "whois.srs.net.nz"),
-            ("pl", "whois.dns.pl"), ("pt", "whois.dns.pt"), ("ro", "whois.rotld.ro"),
-            ("se", "whois.iis.se"), ("sg", "whois.sgnic.sg"), ("sk", "whois.sk-nic.sk"),
-            ("tw", "whois.twnic.net.tw"), ("ua", "whois.ua"), ("ai", "whois.nic.ai"),
-            ("app", "whois.nic.google"), ("dev", "whois.nic.google"), ("blog", "whois.nic.blog"),
-            ("shop", "whois.nic.shop"), ("online", "whois.nic.online"), ("site", "whois.nic.site"),
-            ("xyz", "whois.nic.xyz"), ("top", "whois.nic.top"), ("club", "whois.nic.club"),
-            ("space", "whois.nic.space"), ("website", "whois.nic.website"), ("fun", "whois.nic.fun"),
-            ("store", "whois.nic.store"), ("agency", "whois.donuts.co"), ("life", "whois.donuts.co"),
-            ("news", "whois.donuts.co"), ("social", "whois.donuts.co"), ("today", "whois.donuts.co"),
-            ("world", "whois.donuts.co"), ("digital", "whois.donuts.co"), ("cafe", "whois.donuts.co"),
-            ("company", "whois.donuts.co"), ("email", "whois.donuts.co"), ("expert", "whois.donuts.co"),
-            ("fitness", "whois.donuts.co"), ("gallery", "whois.donuts.co"), ("group", "whois.donuts.co"),
-            ("guru", "whois.donuts.co"), ("institute", "whois.donuts.co"), ("international", "whois.donuts.co"),
-            ("llc", "whois.donuts.co"), ("ltd", "whois.donuts.co"), ("management", "whois.donuts.co"),
-            ("media", "whois.donuts.co"), ("network", "whois.donuts.co"), ("ninja", "whois.donuts.co"),
-            ("photography", "whois.donuts.co"), ("solutions", "whois.donuts.co"), ("studio", "whois.donuts.co"),
-            ("technology", "whois.donuts.co"), ("tools", "whois.donuts.co"), ("university", "whois.donuts.co"),
-            ("ventures", "whois.donuts.co"), ("works", "whois.donuts.co"),
-        ])
-    })
+fn get_whois_server(tld: &str) -> &str {
+    WHOIS_SERVERS.get(tld).copied().unwrap_or("whois.iana.org")
 }
 
-// Init servers at startup
-fn _init_servers() {
-    get_or_init_tld_servers();
-}
+const WHOIS_SERVERS: phf::Map<&'static str, &'static str> = phf::phf_map! {
+    "com" => "whois.verisign-grs.com",
+    "net" => "whois.verisign-grs.com",
+    "org" => "whois.pir.org",
+    "info" => "whois.afilias.net",
+    "biz" => "whois.nic.biz",
+    "io" => "whois.nic.io",
+    "co" => "whois.nic.co",
+    "me" => "whois.nic.me",
+    "es" => "whois.nic.es",
+    "mx" => "whois.nic.mx",
+    "cl" => "whois.nic.cl",
+    "ar" => "whois.nic.ar",
+    "pe" => "kero.yachay.pe",
+    "us" => "whois.nic.us",
+    "la" => "whois.nic.la",
+    "tv" => "whois.nic.tv",
+    "cc" => "whois.nic.cc",
+    "br" => "whois.registro.br",
+    "ru" => "whois.tcinet.ru",
+    "uk" => "whois.nic.uk",
+    "fr" => "whois.nic.fr",
+    "de" => "whois.denic.de",
+    "it" => "whois.nic.it",
+    "nl" => "whois.domain-registry.nl",
+    "cn" => "whois.cnnic.cn",
+    "in" => "whois.registry.in",
+    "to" => "whois.tonic.to",
+    "eu" => "whois.eu",
+    "ai" => "whois.nic.ai",
+    "app" => "whois.nic.google",
+    "dev" => "whois.nic.google",
+    "xyz" => "whois.nic.xyz",
+    "shop" => "whois.nic.shop",
+    "site" => "whois.nic.site",
+    "online" => "whois.nic.online",
+};

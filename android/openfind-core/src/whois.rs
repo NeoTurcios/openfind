@@ -1,16 +1,14 @@
 use std::io::{BufRead, BufReader, Write};
-use std::net::TcpStream;
+use std::net::{TcpStream, SocketAddr, ToSocketAddrs};
 use std::time::Duration;
 
 use regex::Regex;
 use once_cell::sync::Lazy;
 
-use crate::error::WhoisError;
-
 /// Parsed WHOIS response data.
 #[derive(Debug, Clone, Default)]
 pub struct WhoisData {
-    pub status: String,          // "available", "taken", "unknown"
+    pub status: String,
     pub registrar: Option<String>,
     pub creation_date: Option<String>,
     pub nameservers: Vec<String>,
@@ -19,7 +17,12 @@ pub struct WhoisData {
 
 /// Query a WHOIS server via raw TCP socket on port 43.
 pub fn query_whois(domain: &str, server: &str) -> String {
-    let addr = format!("{}:43", server);
+    let addr_str = format!("{}:43", server);
+    let addr: SocketAddr = match addr_str.to_socket_addrs().ok().and_then(|mut a| a.next()) {
+        Some(a) => a,
+        None => return format!("ERROR: Cannot resolve {}", server),
+    };
+
     match TcpStream::connect_timeout(&addr, Duration::from_secs(8)) {
         Ok(mut stream) => {
             stream.set_read_timeout(Some(Duration::from_secs(8))).ok();
@@ -49,7 +52,7 @@ pub fn query_whois(domain: &str, server: &str) -> String {
 }
 
 /// Parse a WHOIS response string into structured data.
-pub fn parse_whois(response: &str, tld: &str) -> WhoisData {
+pub fn parse_whois(response: &str, _tld: &str) -> WhoisData {
     let lower = response.to_lowercase();
 
     let is_available = AVAILABLE_PATTERNS.iter().any(|re| re.is_match(&lower));

@@ -55,10 +55,10 @@ fn pronunciability_score(name: &str) -> f32 {
     let ratio = if consonants > 0 {
         vowels as f32 / consonants as f32
     } else {
-        1.0
+        1.0f32
     };
 
-    let mut score = if (0.35..=0.55).contains(&ratio) { 8.5 }
+    let mut score: f32 = if (0.35..=0.55).contains(&ratio) { 8.5 }
     else if (0.2..=0.7).contains(&ratio) { 6.5 }
     else { 4.0 };
 
@@ -84,7 +84,7 @@ fn pronunciability_score(name: &str) -> f32 {
 }
 
 fn memorability_score(name: &str) -> f32 {
-    let mut score = 7.0;
+    let mut score: f32 = 7.0;
 
     for kw in COGNITIVE_KEYWORDS {
         if name.contains(kw) {

@@ -59,7 +59,3 @@ impl std::error::Error for SslError {}
 impl From<io::Error> for DnsError {
     fn from(e: io::Error) -> Self { DnsError::Io(e) }
 }
-
-impl From<rustls::Error> for DnsError {
-    fn from(e: rustls::Error) -> Self { DnsError::TlsError(e.to_string()) }
-}
