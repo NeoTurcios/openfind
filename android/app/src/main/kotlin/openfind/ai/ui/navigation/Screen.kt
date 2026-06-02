@@ -9,6 +9,6 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settings")
 
     companion object {
-        val bottomNavScreens = listOf(Search, BulkScan, Generator, Library, Watchlist)
+        val bottomNavScreens: List<Screen> get() = listOf(Search, BulkScan, Generator, Library, Watchlist)
     }
 }
